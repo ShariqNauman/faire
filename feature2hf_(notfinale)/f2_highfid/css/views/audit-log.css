@@ -1,0 +1,22 @@
+/*
+ * views/audit-log.css
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Styles for the "Screening Audit Log" screen:
+ * role selector bar, clickable table rows, hash cell, em-dash placeholder.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+/* Role selector row above the table */
+.audit-role-row   { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.audit-role-label { font-family: 'Lato', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
+.audit-role-select { max-width: 260px; padding: 8px 12px; }
+
+/* Clickable table rows with teal hover */
+.audit-table--clickable tbody tr     { cursor: pointer; transition: background-color 0.15s ease; }
+.audit-table--clickable tbody tr:hover td { background-color: rgba(0, 152, 143, 0.05); }
+
+/* Monospace hash value inside table cells */
+.audit-hash { font-family: 'Courier New', Courier, monospace; font-size: 0.82rem; color: var(--text-muted); background: none; padding: 0; }
+
+/* Em-dash placeholder for rows with no missing criteria */
+.audit-none { color: var(--text-muted); font-size: 1rem; }

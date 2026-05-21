@@ -1,0 +1,33 @@
+/*
+ * views/justification-gate.css
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Styles for the "Justification Gate" screen:
+ * page title, amber parameter pills, char counter, and dynamic save button.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+/* Page heading */
+.just-gate-title    { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.3rem; color: var(--text-primary); margin-bottom: 6px; }
+.just-gate-subtitle { font-family: 'Lato', sans-serif; font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; }
+
+/* Card header: pill + risk text stacked vertically */
+.just-card-header { margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; }
+
+/* Amber monospace parameter name pill */
+.just-param-pill { display: inline-flex; align-items: center; font-family: 'Courier New', Courier, monospace; font-size: 0.85rem; font-weight: 700; color: var(--warning); background-color: rgba(217, 119, 6, 0.1); border: 1.5px solid rgba(217, 119, 6, 0.25); padding: 5px 12px; border-radius: 20px; width: fit-content; }
+.just-risk-text  { font-family: 'Lato', sans-serif; font-size: 0.85rem; color: var(--text-muted); }
+
+/* Live character counter — turns green once minimum is met */
+.just-char-counter      { font-family: 'Lato', sans-serif; font-size: 0.78rem; color: var(--text-muted); text-align: right; padding-right: 2px; transition: color 0.2s ease; }
+.just-char-counter.met  { color: var(--success); font-weight: 700; }
+
+/* Save button base */
+.just-save-btn { width: 100%; padding: 16px 32px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem; border: none; border-radius: 10px; cursor: pointer; letter-spacing: 0.02em; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* Disabled: grey — both fields must reach 50 chars */
+.just-save-btn--disabled { background-color: #E5E7EB; color: #9CA3AF; cursor: not-allowed; box-shadow: none; }
+
+/* Active: teal gradient */
+.just-save-btn--active { background: linear-gradient(90deg, var(--primary), var(--gradient-accent)); color: white; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 152, 143, 0.25); }
+.just-save-btn--active:hover  { box-shadow: 0 6px 20px rgba(0, 152, 143, 0.4); transform: translateY(-1px); }
+.just-save-btn--active:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(0, 152, 143, 0.2); }

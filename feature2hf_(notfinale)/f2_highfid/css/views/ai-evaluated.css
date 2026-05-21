@@ -1,0 +1,161 @@
+/*
+ * css/views/ai-evaluated.css
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Styles for the "How the AI Evaluated Me" screen (Applicant View).
+ *
+ *   .aiev-card-title       — Poppins heading for each card
+ *   .aiev-table            — criteria table (pass rows teal, fail rows red)
+ *   .aiev-weight-row       — label + bar row for scoring weights
+ *   .aiev-bar-track        — grey progress bar track
+ *   .aiev-bar-fill         — animated fill (teal / gradient)
+ *   .aiev-score-note       — muted summary note below bars
+ *   .aiev-model-fields     — stacked key-value pairs for model info
+ *   .aiev-model-field      — single key-value row
+ *   .aiev-model-label      — grey Lato label
+ *   .aiev-model-value      — dark Lato value
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+/* ── Card headings ───────────────────────────────────────────────────────── */
+.aiev-card-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 20px 0;
+}
+
+/* ── Criteria table ──────────────────────────────────────────────────────── */
+.aiev-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.9rem;
+}
+
+.aiev-table thead th {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0 16px 12px 0;
+  text-align: left;
+  border-bottom: 2px solid #F3F4F6;
+}
+
+.aiev-table tbody td {
+  padding: 13px 16px 13px 0;
+  border-bottom: 1px solid #F9FAFB;
+  vertical-align: middle;
+}
+
+/* Pass rows — teal result cell */
+.aiev-row--pass td { color: #111827; }
+.aiev-row--pass td:last-child {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* Fail rows — red result cell */
+.aiev-row--fail td { color: #111827; }
+.aiev-row--fail td:last-child {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+/* ── Scoring weight bars ─────────────────────────────────────────────────── */
+.aiev-weight-row {
+  margin-bottom: 20px;
+}
+
+.aiev-weight-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.aiev-weight-pct {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.aiev-bar-track {
+  width: 100%;
+  height: 10px;
+  background-color: #F3F4F6;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.aiev-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Skills bar — solid teal */
+.aiev-bar-fill--skills {
+  background-color: var(--primary);
+}
+
+/* Experience bar — gradient */
+.aiev-bar-fill--exp {
+  background: linear-gradient(90deg, var(--primary), var(--gradient-accent));
+}
+
+.aiev-score-note {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.875rem;
+  color: #6B7280;
+  margin: 16px 0 0 0;
+  line-height: 1.55;
+}
+
+/* ── Model info fields ───────────────────────────────────────────────────── */
+.aiev-model-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.aiev-model-field {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.aiev-model-field:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.aiev-model-label {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  min-width: 220px;
+  flex-shrink: 0;
+}
+
+.aiev-model-value {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.4;
+}

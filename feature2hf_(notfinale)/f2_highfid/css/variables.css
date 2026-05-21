@@ -1,0 +1,44 @@
+/*
+ * variables.css
+ * ─────────────────────────────────────────────────────────────────────────────
+ * All CSS custom properties (design tokens) for HireGuard.
+ * Edit colour, shadow, or transition values here — they cascade everywhere.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+:root {
+  /* ── Backgrounds ─────────────────────────── */
+  --bg-app:         #F9FAFB;
+  --bg-sidebar:     #FFFFFF;
+  --bg-card:        #FFFFFF;
+
+  /* ── Brand / Primary ─────────────────────── */
+  --primary:        #00988F;
+  --primary-hover:  #007c74;
+  --primary-light:  rgba(0, 152, 143, 0.08);
+  --gradient-accent:#4BBAD9;
+
+  /* ── Semantic Colours ────────────────────── */
+  --danger:         #E53E3E;
+  --danger-light:   rgba(229, 62, 62, 0.08);
+  --warning:        #D97706;
+  --warning-light:  rgba(217, 119, 6, 0.08);
+  --success:        #10B981;
+  --success-light:  rgba(16, 185, 129, 0.08);
+
+  /* ── Borders & Text ──────────────────────── */
+  --border:         #E5E7EB;
+  --border-focus:   #00988F;
+  --text-primary:   #111827;
+  --text-muted:     #6B7280;
+
+  /* ── Shadows ─────────────────────────────── */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+
+  /* ── Transitions ─────────────────────────── */
+  --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}

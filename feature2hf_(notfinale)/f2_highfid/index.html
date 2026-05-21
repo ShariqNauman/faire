@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FaiRe — Transparent AI Hiring System</title>
+  <!-- SEO Tags -->
+  <meta name="description"
+    content="FaiRe is a transparent AI hiring system designed with a deontology framework to audit screening, manage justifications, and verify model parameters ethically.">
+
+  <!-- Google Fonts: Poppins + Lato -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400&family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#00988F',
+              light: '#4BBAD9',
+              dark: '#00706A',
+              accent: '#E6F5F4',
+              50: '#F0F9F8',
+              100: '#E1F3F2',
+              200: '#BCE3E1',
+              900: '#004C47'
+            }
+          },
+          fontFamily: {
+            sans: ['Lato', 'sans-serif'],
+            display: ['Poppins', 'sans-serif']
+          },
+          boxShadow: {
+            soft: '0 10px 40px -10px rgba(0, 152, 143, 0.05)',
+            glow: '0 0 30px rgba(0, 152, 143, 0.2)',
+            nav: '0 16px 36px -8px rgba(15, 23, 42, 0.08)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Scrollbars & Reset Styles -->
+  <style type="text/css">
+    body {
+      font-family: 'Lato', sans-serif;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #F8FAFC;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #E2E8F0;
+      border-radius: 99px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #CBD5E1;
+    }
+  </style>
+
+  <!-- React 18 UMD -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Framer Motion UMD -->
+  <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+</head>
+
+<body class="h-full text-slate-800 antialiased selection:bg-brand selection:text-white">
+
+  <!-- React Root Element -->
+  <div id="root" class="h-full"></div>
+
+  <!-- React Application Code (Babel Transpiled) -->
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+    const { motion: M, AnimatePresence, LayoutGroup } = window.Motion;
+
+    // ─── STATIC DATA SEEDS ──────────────────────────────────────────────────
+    const INITIAL_APPLICANTS = [
+      {
+        id: 'APP-001',
+        name: 'Sarah Lim',
+        email: 'sarah.lim@email.com',
+        role: 'Junior Data Analyst',
+        company: 'Nexora Technologies',
+        applicationDate: '2025-05-10',
+        status: 'unsuccessful',
+        matchScore: 60,
+        criteria: [
+          { name: 'Python', required: true, found: true, detail: '✅ Found', result: 'Pass' },
+          { name: 'SQL', required: true, found: true, detail: '✅ Found', result: 'Pass' },
+          { name: 'Data Analysis', required: true, found: true, detail: '✅ Found', result: 'Pass' },
+          { name: 'Machine Learning', required: true, found: false, detail: '❌ Not found', result: 'Fail' },
+          { name: '3+ Years Experience', required: true, found: false, detail: '❌ 2 yrs only', result: 'Fail' },
+        ],
+        weights: [
+          { label: 'Skills Match', pct: 60, type: 'skills' },
+          { label: 'Experience Match', pct: 40, type: 'exp' }
+        ],
+        minRequiredScore: 100,
+        model: {
+          id: 'MODEL-2025-001',
+          lastDocumented: '2025-05-01',
+          sensitiveParamsReviewed: true,
+          sensitiveParamsNote: 'all flagged parameters were justified',
+          documentationStatus: 'Fully documented',
+        }
+      },
+      {
+        id: 'APP-002',
+        name: 'Jordan Lee',
+        email: 'jordan.lee@email.com',
+        role: 'ML Engineer',
+        company: 'DataSphere Pty Ltd',
+        applicationDate: '2025-05-14',
+        status: 'successful',
+        matchScore: 100,
+        criteria: [
+          { name: 'Python', required: true, found: true, detail: '✅ Found', result: 'Pass' },
+          { name: 'Machine Learning', required: true, found: true, detail: '✅ Found', result: 'Pass' },
+          { name: 'TensorFlow', required: true, found: true, detail: '✅ Found', result: 'Pass' },
+          { name: '3+ Years Exp', required: true, found: true, detail: '✅ 5 yrs', result: 'Pass' },
+        ],
+        weights: [
+          { label: 'Skills Match', pct: 70, type: 'skills' },
+          { label: 'Experience Match', pct: 30, type: 'exp' }
+        ],
+        minRequiredScore: 100,
+        model: {
+          id: 'MODEL-2025-001',
+          lastDocumented: '2025-05-01',
+          sensitiveParamsReviewed: true,
+          sensitiveParamsNote: 'all flagged parameters were justified',
+          documentationStatus: 'Fully documented',
+        }
+      }
+    ];
+
+    const INITIAL_AUDIT_LOGS = [
+      {
+        id: 'REC-001',
+        candidateId: 'CAND-101',
+        timestamp: '2025-05-10 09:14',
+        decision: 'Accept',
+        missingCriteria: '—',
+        createdBy: 'DEV-042',
+        hash: 'a3f9c21d4b6a8e0f9c2d7b4a1c5d9e8f',
+        parameters: 'threshold=0.70, weight_skills=0.7, weight_exp=0.3',
+        weights: 'Skills 70%, Experience 30%'
+      },
+      {
+        id: 'REC-002',
+        candidateId: 'CAND-102',
+        timestamp: '2025-05-10 10:02',
+        decision: 'Reject',
+        missingCriteria: 'Machine Learning, 3+ yrs exp',
+        createdBy: 'DEV-042',
+        hash: 'b7e1d4f3a29c81e0d7c4a1b5c9d8e7f6',
+        parameters: 'threshold=0.75, weight_skills=0.6, weight_exp=0.4',
+        weights: 'Skills 60%, Experience 40%'
+      },
+      {
+        id: 'REC-003',
+        candidateId: 'CAND-103',
+        timestamp: '2025-05-11 11:30',
+        decision: 'Reject',
+        missingCriteria: 'Python',
+        createdBy: 'DEV-011',
+        hash: 'c2a8f75b9c1d0e4f8a7b6c5d4e3f2a1b',
+        parameters: 'threshold=0.80, weight_skills=0.5, weight_exp=0.5',
+        weights: 'Skills 50%, Experience 50%'
+      },
+      {
+        id: 'REC-004',
+        candidateId: 'CAND-104',
+        timestamp: '2025-05-12 08:55',
+        decision: 'Accept',
+        missingCriteria: '—',
+        createdBy: 'DEV-011',
+        hash: 'd5b3e94c2d1e0f8a7b6c5d4e3f2a1b0c',
+        parameters: 'threshold=0.65, weight_skills=0.8, weight_exp=0.2',
+        weights: 'Skills 80%, Experience 20%'
+      },
+      {
+        id: 'REC-005',
+        candidateId: 'CAND-105',
+        timestamp: '2025-05-13 14:20',
+        decision: 'Reject',
+        missingCriteria: 'SQL, Data Analysis',
+        createdBy: 'DEV-042',
+        hash: 'e9f2a17d0b3c4e8f7a6b5c4d3e2f1a0b',
+        parameters: 'threshold=0.75, weight_skills=0.6, weight_exp=0.4',
+        weights: 'Skills 60%, Experience 40%'
+      }
+    ];
+
+    // ─── MAIN APP COMPONENT ─────────────────────────────────────────────────
+    function App() {
+      const [viewMode, setViewMode] = useState('business'); // 'business' | 'developer' | 'applicant'
+      const [currentView, setCurrentView] = useState('dashboard');
+      const [activeApplicantId, setActiveApplicantId] = useState('APP-001');
+      const [applicants, setApplicants] = useState(INITIAL_APPLICANTS);
+      const [auditLogs, setAuditLogs] = useState(INITIAL_AUDIT_LOGS);
+      const [selectedRecordId, setSelectedRecordId] = useState(null);
+      const [toast, setToast] = useState(null);
+
+      // Model Scanning Parameters state
+      const [modelIdInput, setModelIdInput] = useState('');
+      const [developerIdInput, setDeveloperIdInput] = useState('');
+      const [trainingSummary, setTrainingSummary] = useState('');
+      const [modelParams, setModelParams] = useState('');
+      const [scanFlags, setScanFlags] = useState(null); // null | []
+
+      // Justification States
+      const [justification1, setJustification1] = useState('');
+      const [justification2, setJustification2] = useState('');
+
+      // Audit role selector
+      const [auditViewerRole, setAuditViewerRole] = useState('compliance');
+
+      const activeApplicant = useMemo(() => {
+        return applicants.find(a => a.id === activeApplicantId) || applicants[0];
+      }, [applicants, activeApplicantId]);
+
+      const selectedRecord = useMemo(() => {
+        return auditLogs.find(r => r.id === selectedRecordId);
+      }, [auditLogs, selectedRecordId]);
+
+      // Handle Toast Notifications
+      const triggerToast = (msg) => {
+        setToast(msg);
+        setTimeout(() => setToast(null), 4000);
+      };
+
+      // Set page Title according to active view
+      const viewTitle = useMemo(() => {
+        switch (currentView) {
+          case 'dashboard': return 'Dashboard Overview';
+          case 'evaluate-candidate': return 'Candidate Evaluation';
+          case 'decision-result': return 'Decision Feedback';
+          case 'document-model': return 'Model Parameters Record';
+          case 'justification-gate': return 'Justification Gate';
+          case 'screening-audit-log': return 'Screening Decision Records';
+          case 'decision-record-detail': return `Decision Record Details: ${selectedRecordId || ''}`;
+          case 'application-status': return 'My Application Status';
+          case 'ai-evaluated-me': return 'How the AI Evaluated Me';
+          default: return 'FaiRe Ethical Auditing';
+        }
+      }, [currentView, selectedRecordId]);
+
+      // Adjust views when mode changes to keep consistent state
+      const handleModeChange = (mode) => {
+        setViewMode(mode);
+        if (mode === 'applicant') {
+          setCurrentView('application-status');
+        } else {
+          setCurrentView('dashboard');
+        }
+      };
+
+      // Expose switch view helpers
+      const handleGoToView = (view) => {
+        setCurrentView(view);
+      };
+
+      // Run candidate evaluation
+      const handleRunEvaluation = () => {
+        setCurrentView('decision-result');
+        triggerToast('Evaluation complete. Decision verified against rules.');
+      };
+
+      // Model scan
+      const handleScanParameters = () => {
+        if (!modelIdInput || !modelParams) {
+          triggerToast('Please provide Model ID and Model Parameters.');
+          return;
+        }
+        // Simulated scan matches
+        setScanFlags([
+          { param: 'age_threshold', risk: 'Possible age-based filtering' },
+          { param: 'years_experience_minimum', risk: 'Potential proxy for age discrimination' }
+        ]);
+        triggerToast('Model scanned. Sensitive parameters identified.');
+      };
+
+      // Save Model Justifications and insert transaction to logs
+      const handleSaveModelJustification = () => {
+        if (justification1.length < 50 || justification2.length < 50) {
+          triggerToast('Each parameter requires a minimum 50 character justification.');
+          return;
+        }
+
+        const newId = `REC-00${auditLogs.length + 1}`;
+        const newRecord = {
+          id: newId,
+          candidateId: 'MODEL-AUDIT',
+          timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
+          decision: 'Accept',
+          missingCriteria: '—',
+          createdBy: developerIdInput || 'DEV-042',
+          hash: Math.random().toString(16).substring(2, 10) + '...' + Math.random().toString(16).substring(2, 10),
+          parameters: `age_threshold justified, experience justified. model_id=${modelIdInput || 'MODEL-2025-001'}`,
+          weights: 'Documented'
+        };
+
+        setAuditLogs([newRecord, ...auditLogs]);
+        triggerToast('Justifications saved successfully! Audit block sealed and signed.');
+
+        // Reset documentation form
+        setModelIdInput('');
+        setDeveloperIdInput('');
+        setTrainingSummary('');
+        setModelParams('');
+        setScanFlags(null);
+        setJustification1('');
+        setJustification2('');
+
+        // Switch back to model page or logs
+        setCurrentView('screening-audit-log');
+      };
+
+      // Sidebar menu rendering based on viewMode
+      const sidebarItems = useMemo(() => {
+        if (viewMode === 'business') {
+          return [
+            { label: 'My Dashboard', view: 'dashboard', icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6z M14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z M4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4z M14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z' },
+            { label: 'Evaluate Candidate', view: 'evaluate-candidate', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+            { label: 'Screening Audit Log', view: 'screening-audit-log', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' }
+          ];
+        } else if (viewMode === 'developer') {
+          return [
+            { label: 'My Dashboard', view: 'dashboard', icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6z M14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z M4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4z M14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z' },
+            { label: 'Model Parameters', view: 'document-model', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' },
+            { label: 'Justification Gate', view: 'justification-gate', icon: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z' },
+            { label: 'Screening Audit Log', view: 'screening-audit-log', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' }
+          ];
+        } else {
+          return [
+            { label: 'Application Status', view: 'application-status', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+            { label: 'How the AI Evaluated Me', view: 'ai-evaluated-me', icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' }
+          ];
+        }
+      }, [viewMode]);
+
+      // Copy Block Hash helper
+      const handleCopyHash = (text) => {
+        navigator.clipboard.writeText(text);
+        triggerToast('Hash copied to clipboard!');
+      };
+
+      return (
+        <div className="flex h-full flex-col lg:flex-row overflow-hidden font-sans">
+
+          {/* ─── SIDEBAR ────────────────────────────────────────────────────── */}
+          <aside className="flex flex-col flex-shrink-0 w-full lg:w-72 bg-slate-900 text-slate-300 shadow-xl border-r border-slate-800 z-20">
+            <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-800/60">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-brand to-brand-light text-white font-display font-extrabold text-lg shadow-glow">
+                FR
+              </div>
+              <div className="flex flex-col">
+                <span className="font-display font-bold text-white tracking-wide text-lg">FaiRe</span>
+                <span className="text-[10px] text-brand-light font-semibold uppercase tracking-widest font-display">Deontic Auditing</span>
+              </div>
+            </div>
+
+            {/* Sidebar Navigation */}
+            <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+              <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider px-3 mb-2 font-display">
+                {viewMode === 'applicant' ? 'My Application' : 'Compliance Controls'}
+              </div>
+              {sidebarItems.map((item, idx) => {
+                const isActive = currentView === item.view || (item.view === 'screening-audit-log' && currentView === 'decision-record-detail');
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => handleGoToView(item.view)}
+                    className={`flex items-center w-full gap-3 px-3 py-3 rounded-lg text-sm font-semibold transition-all duration-200 outline-none ${isActive
+                        ? 'bg-brand text-white shadow-lg shadow-brand/10 translate-x-1'
+                        : 'hover:bg-slate-800 hover:text-white'
+                      }`}
+                  >
+                    <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+                    </svg>
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+
+            <div className="p-4 border-t border-slate-800/60 bg-slate-950/40">
+              <div className="flex items-center gap-3 text-xs text-slate-400 font-semibold px-2">
+                <svg className="w-4 h-4 text-brand-light" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span>Audit Engine: Active</span>
+              </div>
+            </div>
+          </aside>
+
+          {/* ─── MAIN APP AREA ──────────────────────────────────────────────── */}
+          <div className="flex flex-col flex-1 h-full overflow-hidden">
+
+            {/* ─── HEADER ───────────────────────────────────────────────────── */}
+            <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-6 py-5 bg-white border-b border-slate-100 shadow-sm z-10 flex-shrink-0">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-bold font-display text-slate-900 tracking-tight">{viewTitle}</h1>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold text-brand uppercase tracking-wider bg-brand-accent/60 font-display">
+                    Deontology Framework
+                  </span>
+                </div>
+
+                {/* View switcher tabs */}
+                <div className="flex items-center gap-3 mt-1">
+                  <div className="inline-flex rounded-lg bg-slate-100/80 p-0.5 border border-slate-200/40">
+                    <button
+                      onClick={() => handleModeChange('business')}
+                      className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 outline-none flex items-center gap-1 ${viewMode === 'business'
+                          ? 'bg-white text-brand shadow-sm shadow-brand/5 border border-slate-200/20'
+                          : 'text-slate-500 hover:text-slate-800'
+                        }`}
+                    >
+                      🏢 Business View
+                    </button>
+                    <button
+                      onClick={() => handleModeChange('developer')}
+                      className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 outline-none flex items-center gap-1 ${viewMode === 'developer'
+                          ? 'bg-white text-brand shadow-sm shadow-brand/5 border border-slate-200/20'
+                          : 'text-slate-500 hover:text-slate-800'
+                        }`}
+                    >
+                      🛠️ Developer View
+                    </button>
+                    <button
+                      onClick={() => handleModeChange('applicant')}
+                      className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 outline-none flex items-center gap-1 ${viewMode === 'applicant'
+                          ? 'bg-white text-brand shadow-sm shadow-brand/5 border border-slate-200/20'
+                          : 'text-slate-500 hover:text-slate-800'
+                        }`}
+                    >
+                      👤 Applicant View
+                    </button>
+                  </div>
+                  <span className="hidden sm:inline-block px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 bg-slate-100 uppercase tracking-widest font-display">
+                    {viewMode === 'business' ? 'Company / HR' : viewMode === 'developer' ? 'Technical Auditor' : 'Candidate'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Status integrator */}
+              <div className="flex items-center gap-2 mt-4 sm:mt-0 text-slate-600 bg-emerald-50/60 border border-emerald-100/50 rounded-full py-1.5 px-3">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="text-xs font-bold text-slate-700 tracking-wide">Compliance Integrity Verified</span>
+              </div>
+            </header>
+
+            {/* ─── TOAST NOTIFICATION ────────────────────────────────────────── */}
+            <AnimatePresence>
+              {toast && (
+                <M.div
+                  initial={{ opacity: 0, y: 50, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                  transition={{ duration: 0.35, ease: 'easeOut' }}
+                  className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-4 rounded-xl bg-slate-900 border border-slate-800 text-white shadow-2xl shadow-slate-950/20 font-semibold text-sm max-w-md"
+                >
+                  <svg className="w-5 h-5 text-brand-light flex-shrink-0 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>{toast}</span>
+                </M.div>
+              )}
+            </AnimatePresence>
+
+            {/* ─── SCROLLABLE PAGE BODY ──────────────────────────────────────── */}
+            <main className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6">
+              <AnimatePresence mode="wait">
+                <M.div
+                  key={currentView}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.28, ease: 'easeInOut' }}
+                  className="h-full"
+                >
+
+                  {/* ──────────────────────────────────────────────────────────
+                      0. VIEW: Dashboard Overview 
+                  ────────────────────────────────────────────────────────── */}
+                  {currentView === 'dashboard' && (
+                    <div className="space-y-6 max-w-6xl">
+
+                      {/* Banner card */}
+                      <div className="flex items-start gap-4 p-5 rounded-2xl bg-gradient-to-r from-brand/90 to-brand-dark/95 border border-brand/20 shadow-soft text-white relative overflow-hidden">
+                        <div className="absolute right-0 top-0 opacity-10 pointer-events-none translate-x-12 -translate-y-12">
+                          <svg className="w-64 h-64" fill="currentColor" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                        </div>
+                        <div className="p-2.5 rounded-xl bg-white/10 flex-shrink-0 border border-white/20">
+                          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                          </svg>
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="font-display font-bold text-white text-base tracking-wide uppercase">System Duty Mandate</h4>
+                          <p className="text-sm font-medium text-brand-accent/90 leading-relaxed max-w-3xl">
+                            This system operates under a <strong className="text-white underline decoration-brand-light decoration-2">Deontology ethical framework</strong>. Transparency is an absolute duty — no candidate criteria may be obscured, and all model updates require developer review.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* 3 Grid Action Cards */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                        {/* Action 1 */}
+                        <div className="flex flex-col p-6 rounded-2xl bg-white border border-slate-100 shadow-soft hover:shadow-glow hover:border-brand/35 transition-all duration-300 group">
+                          <div className="w-12 h-12 rounded-xl bg-brand/5 border border-brand/10 flex items-center justify-center text-brand mb-4 group-hover:scale-110 transition-transform duration-250">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            </svg>
+                          </div>
+                          <h3 className="text-lg font-bold font-display text-slate-800 mb-2">Applicant Feedback</h3>
+                          <p className="text-sm text-slate-500 leading-relaxed mb-5 flex-1">
+                            Every review generates automated, plain-language decision criteria summaries sent directly to the candidate.
+                          </p>
+                          <button
+                            onClick={() => handleGoToView('evaluate-candidate')}
+                            className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-brand group-hover:text-brand-dark transition-all duration-200 outline-none"
+                          >
+                            <span>Open screening helper</span>
+                            <span className="translate-x-0 group-hover:translate-x-1 transition-transform duration-200">&rarr;</span>
+                          </button>
+                        </div>
+
+                        {/* Action 2 */}
+                        <div className="flex flex-col p-6 rounded-2xl bg-white border border-slate-100 shadow-soft hover:shadow-glow hover:border-brand/35 transition-all duration-300 group">
+                          <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 mb-4 group-hover:scale-110 transition-transform duration-250">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                          </div>
+                          <h3 className="text-lg font-bold font-display text-slate-800 mb-2">Model Documentation</h3>
+                          <p className="text-sm text-slate-500 leading-relaxed mb-5 flex-1">
+                            Model updates scan for sensitive variables. Flagged items require logged, verified justification before deploy.
+                          </p>
+                          <button
+                            onClick={() => handleGoToView('document-model')}
+                            className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-amber-600 group-hover:text-amber-700 transition-all duration-200 outline-none"
+                          >
+                            <span>Inspect parameters</span>
+                            <span className="translate-x-0 group-hover:translate-x-1 transition-transform duration-200">&rarr;</span>
+                          </button>
+                        </div>
+
+                        {/* Action 3 */}
+                        <div className="flex flex-col p-6 rounded-2xl bg-white border border-slate-100 shadow-soft hover:shadow-glow hover:border-brand/35 transition-all duration-300 group">
+                          <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-700 mb-4 group-hover:scale-110 transition-transform duration-250">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                          </div>
+                          <h3 className="text-lg font-bold font-display text-slate-800 mb-2">Screening Audit Log</h3>
+                          <p className="text-sm text-slate-500 leading-relaxed mb-5 flex-1">
+                            A tamper-evident, append-only ledger sealing all acceptance and rejection decisions dynamically.
+                          </p>
+                          <button
+                            onClick={() => handleGoToView('screening-audit-log')}
+                            className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-slate-700 group-hover:text-slate-900 transition-all duration-200 outline-none"
+                          >
+                            <span>Browse audit ledger</span>
+                            <span className="translate-x-0 group-hover:translate-x-1 transition-transform duration-200">&rarr;</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Stat Counters */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-soft text-center sm:text-left">
+                          <div className="text-4xl font-extrabold font-display text-brand tracking-tight">142</div>
+                          <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Candidates Evaluated</div>
+                        </div>
+                        <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-soft text-center sm:text-left">
+                          <div className="text-4xl font-extrabold font-display text-amber-600 tracking-tight">3</div>
+                          <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Models Documented</div>
+                        </div>
+                        <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-soft text-center sm:text-left">
+                          <div className="text-4xl font-extrabold font-display text-emerald-600 tracking-tight">0</div>
+                          <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Undocumented Rejections</div>
+                        </div>
+                      </div>
+
+                    </div>
+                  )}
+
+                  {/* ──────────────────────────────────────────────────────────
+                      1. VIEW: Evaluate Candidate 
+                  ────────────────────────────────────────────────────────── */}
+                  {currentView === 'evaluate-candidate' && (
+                    <div className="space-y-6 max-w-5xl">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                        {/* Resume textbox card */}
+                        <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-soft flex flex-col h-[480px]">
+                          <div className="flex items-center gap-2 mb-4 border-b border-slate-50 pb-3 flex-shrink-0">
+                            <svg className="w-5 h-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <h3 className="font-bold text-slate-800 text-sm tracking-wide">Candidate Resume</h3>
+                          </div>
+                          <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 font-display">Resume Contents</label>
+                          <textarea
+                            className="flex-1 w-full bg-slate-50/80 border border-slate-200/80 rounded-xl p-4 text-sm font-semibold text-slate-700 leading-relaxed outline-none focus:border-brand/40 focus:bg-white transition-colors duration-200 resize-none font-mono"
+                            defaultValue={`Name: Sarah Lim\nSkills: Python, Data Analysis, SQL\nExperience: 2 years in data roles\nEducation: BSc Computer Science`}
+                            readOnly
+                          />
+                        </div>
+
+                        {/* Checklist card */}
+                        <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-soft flex flex-col h-[480px]">
+                          <div className="flex items-center justify-between mb-4 border-b border-slate-50 pb-3 flex-shrink-0">
+                            <div className="flex items-center gap-2">
+                              <svg className="w-5 h-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                              </svg>
+                              <h3 className="font-bold text-slate-800 text-sm tracking-wide">Criteria Checklist</h3>
+                            </div>
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold text-brand bg-brand-accent/50 uppercase tracking-wider">
+                              5 Requirements
+                            </span>
+                          </div>
+
+                          <div className="flex-1 overflow-y-auto space-y-3.5 pr-1">
+                            {/* Criteria item 1 */}
+                            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                              <div className="flex items-center gap-3">
+                                <span className="w-5 h-5 rounded bg-brand/10 text-brand flex items-center justify-center font-bold text-xs">✓</span>
+                                <span className="text-sm font-semibold text-slate-700">Python</span>
+                              </div>
+                              <span className="px-2 py-0.5 rounded text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 uppercase tracking-wider">Matched</span>
+                            </div>
+
+                            {/* Criteria item 2 */}
+                            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                              <div className="flex items-center gap-3">
+                                <span className="w-5 h-5 rounded bg-brand/10 text-brand flex items-center justify-center font-bold text-xs">✓</span>
+                                <span className="text-sm font-semibold text-slate-700">SQL</span>
+                              </div>
+                              <span className="px-2 py-0.5 rounded text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 uppercase tracking-wider">Matched</span>
+                            </div>
+
+                            {/* Criteria item 3 */}
+                            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                              <div className="flex items-center gap-3">
+                                <span className="w-5 h-5 rounded bg-brand/10 text-brand flex items-center justify-center font-bold text-xs">✓</span>
+                                <span className="text-sm font-semibold text-slate-700">Data Analysis</span>
+                              </div>
+                              <span className="px-2 py-0.5 rounded text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 uppercase tracking-wider">Matched</span>
+                            </div>
+
+                            {/* Criteria item 4 */}
+                            <div className="flex items-center justify-between p-3 rounded-xl bg-red-50/30 border border-red-100/50">
+                              <div className="flex items-center gap-3">
+                                <span className="w-5 h-5 rounded bg-red-100/50 text-red-500 flex items-center justify-center font-bold text-xs">✗</span>
+                                <span className="text-sm font-semibold text-slate-500 line-through">Machine Learning</span>
+                              </div>
+                              <span className="px-2 py-0.5 rounded text-[9px] font-bold text-red-600 bg-red-50 border border-red-100 uppercase tracking-wider">Required</span>
+                            </div>
+
+                            {/* Criteria item 5 */}
+                            <div className="flex items-center justify-between p-3 rounded-xl bg-red-50/30 border border-red-100/50">
+                              <div className="flex items-center gap-3">
+                                <span className="w-5 h-5 rounded bg-red-100/50 text-red-500 flex items-center justify-center font-bold text-xs">✗</span>
+                                <span className="text-sm font-semibold text-slate-500 line-through">3+ Years Experience</span>
+                              </div>
+                              <span className="px-2 py-0.5 rounded text-[9px] font-bold text-red-600 bg-red-50 border border-red-100 uppercase tracking-wider">Required</span>
+                            </div>
+                          </div>
+
+                          {/* Summary stats */}
+                          <div className="grid grid-cols-3 gap-3 border-t border-slate-50 pt-4 flex-shrink-0 text-center">
+                            <div>
+                              <span className="block text-lg font-black text-emerald-600">3</span>
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-display">Matched</span>
+                            </div>
+                            <div className="border-l border-slate-100">
+                              <span className="block text-lg font-black text-red-500">2</span>
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-display">Missing</span>
+                            </div>
+                            <div className="border-l border-slate-100">
+                              <span className="block text-lg font-black text-brand">60%</span>
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-display">Coverage</span>
+                            </div>
+                          </div>
+                        </div>
+
+                      </div>
+
+                      {/* Full width Run button */}
+                      <button
+                        onClick={handleRunEvaluation}
+                        className="w-full py-4 rounded-2xl bg-gradient-to-r from-brand to-brand-dark hover:from-brand-dark hover:to-brand-dark text-white font-bold text-base shadow-glow hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 outline-none"
+                      >
+                        <span>Run Evaluation Decision Pipeline</span>
+                        <span className="animate-pulse">&rarr;</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {/* ──────────────────────────────────────────────────────────
+                      2. VIEW: Decision Result 
+                  ────────────────────────────────────────────────────────── */}
+                  {currentView === 'decision-result' && (
+                    <div className="space-y-6 max-w-4xl">
+
+                      {/* Top banner block */}
+                      <div className="flex flex-col sm:flex-row items-center gap-5 p-6 rounded-2xl bg-rose-50 border border-rose-100/60 shadow-soft text-slate-800">
+                        <div className="w-14 h-14 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-2xl font-bold flex-shrink-0 shadow-sm">
+                          ✗
+                        </div>
+                        <div className="flex-1 text-center sm:text-left space-y-1.5">
+                          <h2 className="text-xl font-bold font-display text-rose-700 tracking-tight">Application Unsuccessful</h2>
+                          <p className="text-sm font-semibold text-slate-500 leading-relaxed">
+                            Sarah Lim did not meet 2 of the required mandatory criteria. Reject state sealed.
+                          </p>
+                          <div className="flex flex-wrap justify-center sm:justify-start gap-2.5 pt-1.5">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold text-slate-600 bg-white border border-slate-100">
+                              👤 Sarah Lim
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold text-slate-600 bg-white border border-slate-100">
+                              📅 2025-05-10
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Missing requirements cards list */}
+                      <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-soft">
+                        <div className="flex items-center justify-between mb-4 border-b border-slate-50 pb-3">
+                          <div className="flex items-center gap-2">
+                            <svg className="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <h3 className="font-bold text-slate-800 text-sm tracking-wide">Missing Requirements</h3>
+                          </div>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold text-red-600 bg-red-50 uppercase tracking-wider font-display">
+                            2 Unmet
+                          </span>
+                        </div>
+
+                        <div className="divide-y divide-slate-50">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 gap-3">
+                            <div>
+                              <div className="font-bold text-slate-800 text-sm">Machine Learning</div>
+                              <div className="text-xs font-semibold text-slate-400 mt-0.5">Required criterion, not matching candidate resume keywords</div>
+                            </div>
+                            <span className="self-start sm:self-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-red-500 bg-rose-50 border border-rose-100">Not Found</span>
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 gap-3">
+                            <div>
+                              <div className="font-bold text-slate-800 text-sm">3+ Years Experience</div>
+                              <div className="text-xs font-semibold text-slate-400 mt-0.5">Required criterion, candidate profile has 2 years only</div>
+                            </div>
+                            <span className="self-start sm:self-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-red-500 bg-rose-50 border border-rose-100">Insufficient</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Mock email client block */}
+                      <div className="bg-white border border-slate-100 rounded-2xl shadow-soft overflow-hidden">
+                        <div className="flex items-center justify-between p-5 border-b border-slate-100 bg-slate-50/50">
+                          <div className="flex items-center gap-2">
+                            <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <h3 className="font-bold text-slate-800 text-sm tracking-wide">Automated Applicant Email</h3>
+                          </div>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 bg-slate-200/80 uppercase tracking-widest font-display">Auto-Sent</span>
+                        </div>
+
+                        <div className="p-5 space-y-3.5 border-b border-slate-100">
+                          <div className="flex items-baseline text-sm gap-2">
+                            <span className="text-slate-400 font-bold w-12 font-display">To</span>
+                            <span className="text-slate-700 font-semibold">{activeApplicant.email}</span>
+                          </div>
+                          <div className="flex items-baseline text-sm gap-2">
+                            <span className="text-slate-400 font-bold w-12 font-display">Subject</span>
+                            <span className="text-brand font-black">Update on your application at {activeApplicant.company}</span>
+                          </div>
+                        </div>
+
+                        <div className="p-6 bg-slate-50/40 text-sm text-slate-600 leading-relaxed space-y-4">
+                          <p>Thank you for applying. After reviewing your application, we were unable to move forward at this time.</p>
+                          <p>
+                            To be considered for this role, applicants need experience with <strong className="text-slate-800">Machine Learning</strong> and a minimum of <strong className="text-slate-800">3 years</strong> in a relevant position. We encourage you to apply again once you have gained these skills.
+                          </p>
+                        </div>
+
+                        <div className="p-5 bg-slate-900 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                          <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400">
+                            <span>✅ Email Sent Automatically &mdash; SEND_EMAIL = TRUE</span>
+                          </div>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Hardcoded ethical requirement</span>
+                        </div>
+                      </div>
+
+                    </div>
+                  )}
+
+                  {/* ──────────────────────────────────────────────────────────
+                      3. VIEW: Document Model 
+                  ────────────────────────────────────────────────────────── */}
+                  {currentView === 'document-model' && (
+                    <div className="space-y-6 max-w-4xl">
+
+                      <div className="flex items-start gap-4 p-5 rounded-2xl bg-brand-accent/50 border border-brand/10 shadow-soft text-slate-800">
+                        <div className="p-2.5 rounded-xl bg-brand/5 flex-shrink-0 border border-brand/10 text-brand">
+                          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                          </svg>
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="font-display font-bold text-brand-dark text-base tracking-wide uppercase">Documentation Requirement</h4>
+                          <p className="text-sm font-semibold text-slate-600 leading-relaxed">
+                            Model configurations are subject to dynamic bias analysis scans. A model configuration cannot be activated or compiled without justifying sensitive attributes.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Documentation entry cards */}
+                      <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-soft space-y-6">
+                        <div className="flex items-center justify-between border-b border-slate-50 pb-3">
+                          <div className="flex items-center gap-2">
+                            <svg className="w-5 h-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            <h3 className="font-bold text-slate-800 text-sm tracking-wide">Model Parameters</h3>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest font-display">Model ID</label>
+                            <input
+                              type="text"
+                              value={modelIdInput}
+                              onChange={(e) => setModelIdInput(e.target.value)}
+                              placeholder="e.g. MODEL-2025-001"
+                              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 leading-relaxed outline-none focus:border-brand/40 focus:bg-white transition-colors duration-200"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest font-display">Developer ID</label>
+                            <input
+                              type="text"
+                              value={developerIdInput}
+                              onChange={(e) => setDeveloperIdInput(e.target.value)}
+                              placeholder="e.g. DEV-042"
+                              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 leading-relaxed outline-none focus:border-brand/40 focus:bg-white transition-colors duration-200"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold text-slate-400 uppercase tracking-widest font-display">Training Data Summary</label>
+                          <textarea
+                            value={trainingSummary}
+                            onChange={(e) => setTrainingSummary(e.target.value)}
+                            placeholder="Describe training datasets, age splits, and de-biasing protocols..."
+                            rows="3"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm font-semibold text-slate-700 leading-relaxed outline-none focus:border-brand/40 focus:bg-white transition-colors duration-200 resize-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold text-slate-400 uppercase tracking-widest font-display">Model Configuration Code Block</label>
+                          <textarea
+                            value={modelParams}
+                            onChange={(e) => setModelParams(e.target.value)}
+                            placeholder={"age_threshold = 30\nyears_experience_minimum = 3\nlearning_rate = 0.05"}
+                            rows="5"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm font-semibold text-slate-700 leading-relaxed outline-none focus:border-brand/40 focus:bg-white transition-colors duration-200 resize-none font-mono"
+                          />
+                        </div>
+
+                        {/* Scan trigger button */}
+                        <button
+                          onClick={handleScanParameters}
+                          className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 outline-none transition-all duration-200"
+                        >
+                          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                          <span>Scan for Sensitive Parameters</span>
+                        </button>
+                      </div>
+
+                      {/* Scanning results block */}
+                      {scanFlags && (
+                        <M.div
+                          initial={{ opacity: 0, scale: 0.98 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="bg-white border border-amber-100 rounded-2xl p-6 shadow-soft space-y-5"
+                        >
+                          <div className="flex items-center justify-between border-b border-slate-50 pb-3">
+                            <div className="flex items-center gap-2">
+                              <span className="w-6 h-6 rounded bg-amber-50 text-amber-600 flex items-center justify-center text-sm font-bold">⚠️</span>
+                              <h3 className="font-bold text-slate-800 text-sm tracking-wide">2 Sensitive Flags Detected</h3>
+                            </div>
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold text-amber-700 bg-amber-50 uppercase tracking-wider font-display">
+                              Needs Justification
+                            </span>
+                          </div>
+
+                          <div className="divide-y divide-slate-50">
+                            {scanFlags.map((flag, idx) => (
+                              <div key={idx} className="flex items-center justify-between py-3">
+                                <div>
+                                  <div className="font-bold text-slate-700 font-mono text-xs bg-slate-50 px-2 py-0.5 rounded border border-slate-200/50 inline-block">{flag.param}</div>
+                                  <div className="text-xs font-semibold text-slate-400 mt-1">{flag.risk}</div>
+                                </div>
+                                <span className="px-2.5 py-0.5 rounded text-[9px] font-bold text-red-500 bg-rose-50 border border-rose-100 uppercase tracking-widest">High Risk</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          <button
+                            onClick={() => handleGoToView('justification-gate')}
+                            className="w-full py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 outline-none transition-all duration-200"
+                          >
+                            <span>Proceed to Justification Gate</span>
+                            <span>&rarr;</span>
+                          </button>
+                        </M.div>
+                      )}
+
+                    </div>
+                  )}
+
+                  {/* ──────────────────────────────────────────────────────────
+                      4. VIEW: Justification Gate 
+                  ────────────────────────────────────────────────────────── */}
+                  {currentView === 'justification-gate' && (
+                    <div className="space-y-6 max-w-4xl">
+
+                      {/* Safety banner block */}
+                      <div className="flex items-start gap-4 p-5 rounded-2xl bg-rose-50 border border-rose-100/60 shadow-soft text-slate-800">
+                        <div className="p-2 rounded-lg bg-rose-100 text-red-500 flex-shrink-0">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                          </svg>
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="font-display font-bold text-rose-700 text-sm tracking-wide uppercase">Gate Locking Enabled</h4>
+                          <p className="text-xs font-semibold text-slate-500 leading-relaxed">
+                            You cannot bypass this step. Attempting to save without providing a comprehensive deontology justification will return a schema compile error.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Form for Flag 1 */}
+                      <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-soft space-y-4">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono font-bold text-sm text-slate-800 bg-slate-50 border border-slate-200 px-3 py-1 rounded-lg">age_threshold</span>
+                          <span className="text-xs font-semibold text-slate-400 font-display">Risk: Possible age-based filter proxy</span>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-display">Ethical Justification Summary (Min 50 chars)</label>
+                          <textarea
+                            value={justification1}
+                            onChange={(e) => setJustification1(e.target.value)}
+                            placeholder="Enter deontology ethical justification..."
+                            rows="3"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm font-semibold text-slate-700 leading-relaxed outline-none focus:border-brand/40 focus:bg-white transition-colors duration-200 resize-none"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider">
+                          <span className={justification1.length >= 50 ? 'text-emerald-500' : 'text-slate-400'}>
+                            {justification1.length >= 50 ? '✓ Minimum length satisfied' : '✗ Needs more detail'}
+                          </span>
+                          <span className="text-slate-400 font-mono">{justification1.length} / 50 characters</span>
+                        </div>
+                      </div>
+
+                      {/* Form for Flag 2 */}
+                      <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-soft space-y-4">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono font-bold text-sm text-slate-800 bg-slate-50 border border-slate-200 px-3 py-1 rounded-lg">years_experience_minimum</span>
+                          <span className="text-xs font-semibold text-slate-400 font-display">Risk: Age discrimination proxy</span>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-display">Ethical Justification Summary (Min 50 chars)</label>
+                          <textarea
+                            value={justification2}
+                            onChange={(e) => setJustification2(e.target.value)}
+                            placeholder="Enter deontology ethical justification..."
+                            rows="3"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm font-semibold text-slate-700 leading-relaxed outline-none focus:border-brand/40 focus:bg-white transition-colors duration-200 resize-none"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider">
+                          <span className={justification2.length >= 50 ? 'text-emerald-500' : 'text-slate-400'}>
+                            {justification2.length >= 50 ? '✓ Minimum length satisfied' : '✗ Needs more detail'}
+                          </span>
+                          <span className="text-slate-400 font-mono">{justification2.length} / 50 characters</span>
+                        </div>
+                      </div>
+
+                      {/* Dynamic submit button */}
+                      <button
+                        onClick={handleSaveModelJustification}
+                        disabled={justification1.length < 50 || justification2.length < 50}
+                        className={`w-full py-4 rounded-2xl text-white font-bold text-sm uppercase tracking-wider shadow-md transition-all duration-200 outline-none ${justification1.length >= 50 && justification2.length >= 50
+                            ? 'bg-brand hover:bg-brand-dark cursor-pointer'
+                            : 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none'
+                          }`}
+                      >
+                        {justification1.length >= 50 && justification2.length >= 50
+                          ? 'Save Model & Seal Audited Config'
+                          : 'Save Model — Parameters Justification Required'}
+                      </button>
+
+                    </div>
+                  )}
+
+                  {/* ──────────────────────────────────────────────────────────
+                      5. VIEW: Screening Audit Log 
+                  ────────────────────────────────────────────────────────── */}
+                  {currentView === 'screening-audit-log' && (
+                    <div className="space-y-6 max-w-6xl">
+
+                      {/* Safety banner lock */}
+                      <div className="flex items-start gap-4 p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-soft text-slate-300 relative overflow-hidden">
+                        <div className="p-2.5 rounded-xl bg-slate-800 border border-slate-700 flex-shrink-0 text-slate-100">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="font-display font-bold text-white text-sm tracking-wide uppercase">Cryptographic Audit Ledger</h4>
+                          <p className="text-xs font-semibold text-slate-400 leading-relaxed">
+                            🔒 Append-Only Database — screening decisions are sealed immediately. Any deletion or modification attempts trigger a high-priority EEOC notification.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Role selection line */}
+                      <div className="flex items-center gap-3.5 bg-slate-100/60 p-4 border border-slate-200/50 rounded-xl max-w-sm">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest font-display">View Role</span>
+                        <select
+                          value={auditViewerRole}
+                          onChange={(e) => setAuditViewerRole(e.target.value)}
+                          className="flex-1 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded px-2.5 py-1.5 outline-none cursor-pointer"
+                        >
+                          <option value="compliance">Compliance Reviewer</option>
+                          <option value="eeoc">EEOC Auditor</option>
+                          <option value="dev-unauth">Developer — Unauthorised</option>
+                        </select>
+                      </div>
+
+                      {/* Log table */}
+                      <div className="bg-white border border-slate-100 rounded-2xl shadow-soft overflow-hidden">
+                        <div className="flex items-center justify-between p-5 border-b border-slate-50 flex-shrink-0">
+                          <div className="flex items-center gap-2">
+                            <svg className="w-5 h-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                            </svg>
+                            <h3 className="font-bold text-slate-800 text-sm tracking-wide">Screening Decisions</h3>
+                          </div>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 bg-slate-100 uppercase tracking-wider font-display">
+                            Append-Only
+                          </span>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left border-collapse">
+                            <thead>
+                              <tr className="bg-slate-50/50 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-widest font-display">
+                                <th className="px-6 py-4">Record ID</th>
+                                <th className="px-6 py-4">Candidate ID</th>
+                                <th className="px-6 py-4">Timestamp</th>
+                                <th className="px-6 py-4">Decision</th>
+                                <th className="px-6 py-4">Missing Requirements</th>
+                                <th className="px-6 py-4">User ID</th>
+                                <th className="px-6 py-4">Sealed Block Hash</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100/60 text-sm">
+                              {auditLogs.map((log) => (
+                                <tr
+                                  key={log.id}
+                                  onClick={() => {
+                                    setSelectedRecordId(log.id);
+                                    handleGoToView('decision-record-detail');
+                                  }}
+                                  className="hover:bg-slate-50/80 cursor-pointer transition-colors duration-150 group"
+                                >
+                                  <td className="px-6 py-4.5 font-bold text-slate-700 group-hover:text-brand transition-colors duration-150">{log.id}</td>
+                                  <td className="px-6 py-4.5 font-semibold text-slate-600">{log.candidateId}</td>
+                                  <td className="px-6 py-4.5 font-semibold text-slate-500">{log.timestamp}</td>
+                                  <td className="px-6 py-4.5">
+                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${log.decision === 'Accept'
+                                        ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                                        : 'bg-rose-50 text-rose-600 border border-rose-100'
+                                      }`}>
+                                      {log.decision === 'Accept' ? '✅ Accept' : '❌ Reject'}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4.5 font-semibold text-slate-500 max-w-[200px] truncate">{log.missingCriteria}</td>
+                                  <td className="px-6 py-4.5 font-bold text-slate-400 font-display">{log.createdBy}</td>
+                                  <td className="px-6 py-4.5 font-mono text-xs text-slate-400 select-all">{log.hash.slice(0, 8)}...</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                    </div>
+                  )}
+
+                  {/* ──────────────────────────────────────────────────────────
+                      6. VIEW: Decision Record Detail 
+                  ────────────────────────────────────────────────────────── */}
+                  {currentView === 'decision-record-detail' && selectedRecord && (
+                    <div className="space-y-6 max-w-5xl">
+
+                      {/* Back button */}
+                      <button
+                        onClick={() => handleGoToView('screening-audit-log')}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-slate-700 transition-colors duration-200 outline-none"
+                      >
+                        <span>&larr;</span>
+                        <span>Back to Audit Log</span>
+                      </button>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                        {/* Details card */}
+                        <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-soft space-y-4">
+                          <h3 className="font-bold text-slate-800 text-sm tracking-wide border-b border-slate-50 pb-3">Record Information</h3>
+
+                          <div className="space-y-4 text-sm leading-relaxed">
+                            <div className="flex justify-between items-baseline py-1.5 border-b border-slate-50">
+                              <span className="text-slate-400 font-bold text-xs uppercase tracking-wider font-display">Record ID</span>
+                              <span className="font-bold text-slate-700">{selectedRecord.id}</span>
+                            </div>
+                            <div className="flex justify-between items-baseline py-1.5 border-b border-slate-50">
+                              <span className="text-slate-400 font-bold text-xs uppercase tracking-wider font-display">Candidate ID</span>
+                              <span className="font-semibold text-slate-700">{selectedRecord.candidateId}</span>
+                            </div>
+                            <div className="flex justify-between items-baseline py-1.5 border-b border-slate-50">
+                              <span className="text-slate-400 font-bold text-xs uppercase tracking-wider font-display">Timestamp</span>
+                              <span className="font-semibold text-slate-700">{selectedRecord.timestamp} UTC</span>
+                            </div>
+                            <div className="flex justify-between items-baseline py-1.5 border-b border-slate-50">
+                              <span className="text-slate-400 font-bold text-xs uppercase tracking-wider font-display">Final Decision</span>
+                              <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${selectedRecord.decision === 'Accept'
+                                  ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                                  : 'bg-rose-50 text-rose-600 border border-rose-100'
+                                }`}>
+                                {selectedRecord.decision === 'Accept' ? '✅ Accepted' : '❌ Rejected'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-baseline py-1.5 border-b border-slate-50">
+                              <span className="text-slate-400 font-bold text-xs uppercase tracking-wider font-display">Missing Requirements</span>
+                              <span className="font-semibold text-slate-700 text-right max-w-[200px]">{selectedRecord.missingCriteria}</span>
+                            </div>
+                            <div className="flex justify-between items-baseline py-1.5 border-b border-slate-50">
+                              <span className="text-slate-400 font-bold text-xs uppercase tracking-wider font-display">Parameters</span>
+                              <span className="font-mono text-xs text-slate-600 text-right max-w-[240px] truncate">{selectedRecord.parameters || 'threshold=0.75'}</span>
+                            </div>
+                            <div className="flex justify-between items-center py-1.5">
+                              <span className="text-slate-400 font-bold text-xs uppercase tracking-wider font-display">Sealed Hash</span>
+                              <div className="inline-flex items-center gap-1.5">
+                                <code className="font-mono text-xs text-slate-500 bg-slate-50 border border-slate-200/50 px-2 py-0.5 rounded select-all">{selectedRecord.hash.slice(0, 10)}...</code>
+                                <button
+                                  onClick={() => handleCopyHash(selectedRecord.hash)}
+                                  className="p-1 text-slate-400 hover:text-brand transition-colors duration-200 outline-none"
+                                >
+                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Audit trail */}
+                        <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-soft space-y-4">
+                          <h3 className="font-bold text-slate-800 text-sm tracking-wide border-b border-slate-50 pb-3">Access Trail</h3>
+
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-left text-xs border-collapse">
+                              <thead>
+                                <tr className="text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100">
+                                  <th className="py-2.5">Action</th>
+                                  <th className="py-2.5">User</th>
+                                  <th className="py-2.5">Timestamp</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-50 font-semibold text-slate-600">
+                                <tr>
+                                  <td className="py-3 font-mono text-[10px] text-brand">RECORD_CREATED</td>
+                                  <td className="py-3 font-display">{selectedRecord.createdBy}</td>
+                                  <td className="py-3 font-mono text-slate-400">{selectedRecord.timestamp}</td>
+                                </tr>
+                                <tr>
+                                  <td className="py-3 font-mono text-[10px] text-brand">RECORD_SEALED</td>
+                                  <td className="py-3 font-display">SYSTEM_AUDITOR</td>
+                                  <td className="py-3 font-mono text-slate-400">{selectedRecord.timestamp}</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                      </div>
+
+                      {/* Verified notes row */}
+                      <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex-1 flex items-center gap-3 p-4 rounded-xl bg-rose-50 border border-rose-100/50 text-xs font-semibold text-rose-800 shadow-soft">
+                          <span>⚠️ This record is sealed and immutable. Attempts to edit parameters will void compliance logs.</span>
+                        </div>
+                        <div className="flex-1 flex items-center gap-3 p-4 rounded-xl bg-brand-accent/50 border border-brand/10 text-xs font-semibold text-brand-dark shadow-soft">
+                          <span>✅ Transaction block sealed. Ledger audit trail validated against root deontology hash.</span>
+                        </div>
+                      </div>
+
+                    </div>
+                  )}
+
+                  {/* ──────────────────────────────────────────────────────────
+                      7. VIEW: Application Status (Applicant View)
+                  ────────────────────────────────────────────────────────── */}
+                  {currentView === 'application-status' && (
+                    <div className="space-y-6 max-w-4xl">
+
+                      {/* Top banner block */}
+                      <div className="bg-white border border-slate-100 rounded-2xl shadow-soft overflow-hidden">
+
+                        {/* 4-column Meta header row */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 divide-x-0 md:divide-x divide-slate-100 bg-slate-50/50 border-b border-slate-100">
+                          <div className="p-5 flex flex-col">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-display">Applicant</span>
+                            <span className="text-sm font-black text-slate-800 mt-1">{activeApplicant.name}</span>
+                          </div>
+                          <div className="p-5 flex flex-col">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-display">Role Applied For</span>
+                            <span className="text-sm font-black text-slate-800 mt-1">{activeApplicant.role}</span>
+                          </div>
+                          <div className="p-5 flex flex-col">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-display">Company</span>
+                            <span className="text-sm font-black text-slate-800 mt-1">{activeApplicant.company}</span>
+                          </div>
+                          <div className="p-5 flex flex-col">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-display">Application Date</span>
+                            <span className="text-sm font-black text-slate-800 mt-1">{activeApplicant.applicationDate}</span>
+                          </div>
+                        </div>
+
+                        {/* Soft red banner result */}
+                        <div className="p-6 bg-red-50/60 border-t border-b border-slate-100 flex items-start gap-4">
+                          <div className="w-11 h-11 rounded-full bg-rose-100 text-red-500 flex items-center justify-center text-lg font-bold flex-shrink-0 shadow-sm">
+                            ✗
+                          </div>
+                          <div className="space-y-1">
+                            <h2 className="text-lg font-extrabold font-display text-red-600 tracking-tight">❌ Unsuccessful</h2>
+                            <p className="text-xs font-semibold text-slate-500 leading-relaxed">
+                              Your application has been reviewed. See below for details on the decision.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Explanation box */}
+                      <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-soft space-y-4">
+                        <h3 className="font-bold font-display text-slate-800 text-sm tracking-wide border-b border-slate-50 pb-3">Why was this decision made?</h3>
+                        <p className="text-sm text-slate-600 leading-relaxed font-medium">
+                          After reviewing your application, our system found that you did not meet 2 of the required criteria for this role. This decision was made automatically based on the job requirements set by the employer.
+                        </p>
+
+                        <div className="flex flex-wrap gap-2.5 pt-2">
+                          {activeApplicant.criteria.filter(c => !c.found).map((crit, idx) => (
+                            <span key={idx} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold text-red-500 bg-rose-50 border border-rose-100 font-display">
+                              ✗ {crit.name}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="p-4 rounded-xl bg-brand-accent/40 border border-brand/10 text-xs font-semibold text-brand-dark flex items-center gap-2">
+                          <span>ℹ️ This feedback was generated automatically and sent to you immediately. No human read your personal details.</span>
+                        </div>
+                      </div>
+
+                      {/* Success items box */}
+                      <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-soft space-y-4">
+                        <h3 className="font-bold font-display text-slate-800 text-sm tracking-wide border-b border-slate-50 pb-3">What you did well</h3>
+                        <div className="flex flex-wrap gap-2.5">
+                          {activeApplicant.criteria.filter(c => c.found).map((crit, idx) => (
+                            <span key={idx} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 font-display">
+                              ✓ {crit.name}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-2">These skills matched the job requirements successfully.</p>
+                      </div>
+
+                    </div>
+                  )}
+
+                  {/* ──────────────────────────────────────────────────────────
+                      8. VIEW: How the AI Evaluated Me (Applicant View)
+                  ────────────────────────────────────────────────────────── */}
+                  {currentView === 'ai-evaluated-me' && (
+                    <div className="space-y-6 max-w-4xl">
+
+                      {/* Top banner note */}
+                      <div className="bg-white border-l-4 border-brand border-y border-r border-slate-100 rounded-2xl p-5 shadow-soft">
+                        <p className="text-sm font-semibold text-slate-600 leading-relaxed">
+                          This system is required to show you how it made its decision. No criteria were hidden from you.
+                        </p>
+                      </div>
+
+                      {/* Criteria table */}
+                      <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-soft space-y-4">
+                        <h3 className="font-bold font-display text-slate-800 text-sm tracking-wide border-b border-slate-50 pb-3">What the AI checked</h3>
+
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left text-xs border-collapse">
+                            <thead>
+                              <tr className="text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100">
+                                <th className="py-3">Criteria</th>
+                                <th className="py-3">Required</th>
+                                <th className="py-3">Your Profile</th>
+                                <th className="py-3 text-right">Result</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50 font-semibold text-slate-700 text-xs">
+                              {activeApplicant.criteria.map((crit, idx) => (
+                                <tr key={idx} className={crit.found ? 'text-slate-700' : 'text-slate-500'}>
+                                  <td className="py-4 font-bold">{crit.name}</td>
+                                  <td className="py-4">{crit.required ? 'Yes' : 'No'}</td>
+                                  <td className="py-4">{crit.detail}</td>
+                                  <td className={`py-4 text-right font-black uppercase tracking-wider ${crit.found ? 'text-brand' : 'text-red-500'
+                                    }`}>
+                                    {crit.result}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      {/* Weight progress bars */}
+                      <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-soft space-y-5">
+                        <h3 className="font-bold font-display text-slate-800 text-sm tracking-wide border-b border-slate-50 pb-3">Decision weighting</h3>
+
+                        <div className="space-y-5">
+                          {activeApplicant.weights.map((w, idx) => (
+                            <div key={idx} className="space-y-2">
+                              <div className="flex justify-between text-xs font-bold text-slate-700">
+                                <span>{w.label}</span>
+                                <span className="text-brand font-black">{w.pct}% weight</span>
+                              </div>
+                              <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div
+                                  style={{ width: `${w.pct}%` }}
+                                  className={`h-full rounded-full transition-all duration-500 ${w.type === 'skills'
+                                      ? 'bg-brand'
+                                      : 'bg-gradient-to-r from-brand to-brand-light'
+                                    }`}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <p className="text-xs font-semibold text-slate-400 mt-4 leading-relaxed">
+                          Your overall match score: <strong className="text-slate-700">{activeApplicant.matchScore}%</strong> — Minimum required: <strong className="text-slate-700">{activeApplicant.minRequiredScore}%</strong> of mandatory criteria must be met.
+                        </p>
+                      </div>
+
+                      {/* Model parameters cards */}
+                      <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-soft space-y-4">
+                        <h3 className="font-bold font-display text-slate-800 text-sm tracking-wide border-b border-slate-50 pb-3">About the AI model used</h3>
+
+                        <div className="space-y-4 text-xs font-semibold text-slate-600">
+                          <div className="flex justify-between items-baseline py-2 border-b border-slate-50">
+                            <span className="text-slate-400 font-bold uppercase tracking-wider font-display">Model ID</span>
+                            <span className="font-bold text-slate-800">{activeApplicant.model.id}</span>
+                          </div>
+                          <div className="flex justify-between items-baseline py-2 border-b border-slate-50">
+                            <span className="text-slate-400 font-bold uppercase tracking-wider font-display">Last Documented</span>
+                            <span className="font-semibold text-slate-800">{activeApplicant.model.lastDocumented}</span>
+                          </div>
+                          <div className="flex justify-between items-baseline py-2 border-b border-slate-50">
+                            <span className="text-slate-400 font-bold uppercase tracking-wider font-display">Sensitive Parameters Reviewed</span>
+                            <span className="font-semibold text-slate-800">✅ Yes — {activeApplicant.model.sensitiveParamsNote}</span>
+                          </div>
+                          <div className="flex justify-between items-baseline py-2">
+                            <span className="text-slate-400 font-bold uppercase tracking-wider font-display">Documentation Status</span>
+                            <span className="font-bold text-brand">✅ {activeApplicant.model.documentationStatus}</span>
+                          </div>
+                        </div>
+
+                        <div className="p-4 rounded-xl bg-brand-accent/40 border border-brand/10 text-xs font-semibold text-brand-dark flex items-center gap-2 mt-4">
+                          <span>You have the right to know which AI model evaluated you and that it was reviewed for bias before deployment.</span>
+                        </div>
+                      </div>
+
+                    </div>
+                  )}
+
+                </M.div>
+              </AnimatePresence>
+            </main>
+          </div>
+
+        </div>
+      );
+    }
+
+    // ─── RENDER REACT APPLICATION ───────────────────────────────────────────
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+
+</html>
