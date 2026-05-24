@@ -1,21 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Developer | AI Bias Check - FaiRe</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="../styles/global.css">
     <style>
-        .layout { flex: 1; display: flex; flex-direction: column; }
-        textarea { background: var(--black); border: 1px solid var(--muted); color: var(--white); padding: 1rem; width: 100%; height: 150px; font-family: 'IBM Plex Mono'; font-size: 0.85rem; margin-bottom: 2rem; outline: none;}
-        .rule-list { margin-top: 2rem; opacity: 0; }
-        .progress-container { margin: 2rem 0; }
-        .score-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem;}
-        #deploy-celebration { position: fixed; top:0; left:0; width:100vw; height:100vh; background:var(--yellow); z-index:9999; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; }
-        #deploy-celebration h1 { color:var(--black); font-family:'Syne', sans-serif; font-size:4rem; font-weight:800; transform: translateY(50px); opacity: 0;}
+        .layout {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        textarea {
+            background: var(--black);
+            border: 1px solid var(--muted);
+            color: var(--white);
+            padding: 1rem;
+            width: 100%;
+            height: 150px;
+            font-family: 'IBM Plex Mono';
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+            outline: none;
+        }
+
+        .rule-list {
+            margin-top: 2rem;
+            opacity: 0;
+        }
+
+        .progress-container {
+            margin: 2rem 0;
+        }
+
+        .score-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        #deploy-celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: var(--yellow);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #deploy-celebration h1 {
+            color: var(--black);
+            font-family: 'Syne', sans-serif;
+            font-size: 4rem;
+            font-weight: 800;
+            transform: translateY(50px);
+            opacity: 0;
+        }
     </style>
 </head>
+
 <body>
 
     <nav class="nav-bar stagger-in">
@@ -35,7 +91,8 @@
                 </div>
                 <div class="step-content">
                     <h2 style="font-size:2rem; margin-bottom:1rem;">Manual Rule Filter</h2>
-                    <p style="color:var(--muted); margin-bottom:2rem;">Check if any hard-coded rules manually inserted by the company violate ethical guidelines.</p>
+                    <p style="color:var(--muted); margin-bottom:2rem;">Check if any hard-coded rules manually inserted
+                        by the company violate ethical guidelines.</p>
 
                     <textarea>
 {
@@ -54,15 +111,18 @@
                         </div>
                         <div class="violation-card">
                             <i data-lucide="x" style="color:var(--red)"></i>
-                            <div><strong style="color:var(--white);">rule_1:</strong> Violates socioeconomic parity guidelines.</div>
+                            <div><strong style="color:var(--white);">rule_1:</strong> Violates socioeconomic parity
+                                guidelines.</div>
                         </div>
                         <div class="violation-card">
                             <i data-lucide="x" style="color:var(--red)"></i>
-                            <div><strong style="color:var(--white);">rule_3:</strong> ADEA Violation (Age Discrimination).</div>
+                            <div><strong style="color:var(--white);">rule_3:</strong> ADEA Violation (Age
+                                Discrimination).</div>
                         </div>
 
                         <div class="status-badge failed" style="margin-top:1rem;">DEPLOYMENT BLOCKED</div>
-                        <button class="btn btn-outline" style="margin-left:1rem; margin-top:1rem;" onclick="fixRules()">Remove Explicit Negatives</button>
+                        <button class="btn btn-outline" style="margin-left:1rem; margin-top:1rem;"
+                            onclick="fixRules()">Remove Explicit Negatives</button>
                     </div>
                 </div>
             </div>
@@ -78,19 +138,29 @@
                     <button class="btn btn-yellow" onclick="runPipeline()" id="btn-pipeline">Run Final Pass</button>
 
                     <div class="progress-container">
-                        <div class="score-row"><span style="color:var(--muted)">Fairness Score</span><span id="sc-fai">0/100</span></div>
-                        <div class="progress-track"><div class="progress-fill" id="bar-fai"></div></div>
+                        <div class="score-row"><span style="color:var(--muted)">Fairness Score</span><span
+                                id="sc-fai">0/100</span></div>
+                        <div class="progress-track">
+                            <div class="progress-fill" id="bar-fai"></div>
+                        </div>
                     </div>
                     <div class="progress-container">
-                        <div class="score-row"><span style="color:var(--muted)">Transparency Score</span><span id="sc-tra">0/100</span></div>
-                        <div class="progress-track"><div class="progress-fill" id="bar-tra"></div></div>
+                        <div class="score-row"><span style="color:var(--muted)">Transparency Score</span><span
+                                id="sc-tra">0/100</span></div>
+                        <div class="progress-track">
+                            <div class="progress-fill" id="bar-tra"></div>
+                        </div>
                     </div>
                     <div class="progress-container">
-                        <div class="score-row"><span style="color:var(--muted)">Bias Score (Lower is better)</span><span id="sc-bia">100/100</span></div>
-                        <div class="progress-track"><div class="progress-fill" id="bar-bia" style="background:var(--red); width: 100%;"></div></div>
+                        <div class="score-row"><span style="color:var(--muted)">Bias Score (Lower is better)</span><span
+                                id="sc-bia">100/100</span></div>
+                        <div class="progress-track">
+                            <div class="progress-fill" id="bar-bia" style="background:var(--red); width: 100%;"></div>
+                        </div>
                     </div>
 
-                    <button class="btn btn-yellow" style="margin-top:2rem;" id="btn-to-rev" disabled onclick="nextStep(2)">Proceed to Human Review</button>
+                    <button class="btn btn-yellow" style="margin-top:2rem;" id="btn-to-rev" disabled
+                        onclick="nextStep(2)">Proceed to Human Review</button>
                 </div>
             </div>
 
@@ -102,19 +172,24 @@
                 </div>
                 <div class="step-content">
                     <h2 style="font-size:2rem; margin-bottom:2rem;">Deployment Sign-Off</h2>
-                    <p style="color:var(--muted); margin-bottom:2rem;">All technical guardrails passed. Human reviewer must sign off to authorize artifact for Business Checkpoints.</p>
+                    <p style="color:var(--muted); margin-bottom:2rem;">All technical guardrails passed. Human reviewer
+                        must sign off to authorize artifact for Business Checkpoints.</p>
 
                     <div style="background:var(--gray); padding:2rem; margin-bottom:2rem;">
-                        <input type="checkbox" id="ack1" onchange="checkAuth()"> <label for="ack1">Acknowledge: Risk profile remains elevated for proxy locations.</label><br><br>
-                        <input type="checkbox" id="ack2" onchange="checkAuth()"> <label for="ack2">Acknowledge: Hard-coded overrides purged.</label>
+                        <input type="checkbox" id="ack1" onchange="checkAuth()"> <label for="ack1">Acknowledge: Risk
+                            profile remains elevated for proxy locations.</label><br><br>
+                        <input type="checkbox" id="ack2" onchange="checkAuth()"> <label for="ack2">Acknowledge:
+                            Hard-coded overrides purged.</label>
                     </div>
 
-                    <label style="color:var(--yellow); font-size:0.75rem; text-transform:uppercase;">Sign-Off Signature</label>
+                    <label style="color:var(--yellow); font-size:0.75rem; text-transform:uppercase;">Sign-Off
+                        Signature</label>
                     <textarea style="height:80px; margin-top:0.5rem;" placeholder="Reviewer comments..."></textarea>
 
                     <div style="display:flex; gap:1rem;">
                         <button class="btn btn-red">Flag Bias - Block</button>
-                        <button class="btn btn-yellow" id="btn-auth" disabled onclick="authorize()">Approve - Clear for Deployment</button>
+                        <button class="btn btn-yellow" id="btn-auth" disabled onclick="authorize()">Approve - Clear for
+                            Deployment</button>
                     </div>
                 </div>
             </div>
@@ -123,7 +198,7 @@
     </main>
 
     <div id="deploy-celebration">
-        <h1 id="dep-text">✓ MODEL SUBMITTED TO COMPLIANCE PIPELINE</h1>
+        <h1 id="dep-text">✓ BIAS CLEARED — PROCEEDING TO DOCUMENTATION</h1>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -168,13 +243,21 @@
                 document.getElementById('sc-tra').innerText = "88/100 (PASS)";
             });
 
-            gsap.to('#bar-bia', { width: "2%", duration: 3, ease: "power2.out", onUpdate: function() {
-                const val = Math.floor(100 - (this.progress() * 98));
-                document.getElementById('sc-bia').innerText = val + "/100 (PASS)";
-            }, onComplete: () => {
-                document.getElementById('bar-bia').style.backgroundColor = "#00FF7F";
-                document.getElementById('btn-to-rev').disabled = false;
-            }});
+            gsap.to('#bar-bia', {
+                width: "2%", duration: 3, ease: "power2.out", onUpdate: function () {
+                    const val = Math.floor(100 - (this.progress() * 98));
+                    document.getElementById('sc-bia').innerText = val + "/100 (PASS)";
+                }, onComplete: () => {
+                    document.getElementById('bar-bia').style.backgroundColor = "#00FF7F";
+                    document.getElementById('btn-to-rev').disabled = false;
+                    // Save pipeline metrics to session for Business Portal consumption
+                    sessionStorage.setItem('faiRe_pipeline_metrics', JSON.stringify({
+                        fairness: 96,
+                        transparency: 88,
+                        bias: 2
+                    }));
+                }
+            });
         }
 
         function checkAuth() {
@@ -183,15 +266,17 @@
 
         function authorize() {
             sessionStorage.setItem('faiRe_model_status', 'PENDING_COMPLIANCE');
+            sessionStorage.setItem('faiRe_bias_check_cleared', 'true');
             const overlay = document.getElementById('deploy-celebration');
             overlay.style.pointerEvents = 'auto';
             gsap.to(overlay, { opacity: 1, duration: 0.3 });
             gsap.to('#dep-text', { opacity: 1, y: 0, duration: 0.6, ease: "back.out(1.5)", delay: 0.2 });
 
             setTimeout(() => {
-                window.location.href = '../business/checkpoints.html';
+                window.location.href = 'documentation.html';
             }, 2000);
         }
     </script>
 </body>
+
 </html>

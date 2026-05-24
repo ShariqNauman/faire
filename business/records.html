@@ -50,6 +50,7 @@
         <div class="stagger-in" style="display:flex; border-bottom:1px solid var(--muted); padding: 0 3rem; gap: 2rem;">
             <a href="#" style="color:var(--yellow); text-decoration:none; padding:1.25rem 0; border-bottom:2px solid var(--yellow); text-transform:uppercase; font-size:0.85rem; font-weight:600;">AI Decision Records</a>
             <a href="independent-review.html" style="color:var(--muted); text-decoration:none; padding:1.25rem 0; border-bottom:2px solid transparent; text-transform:uppercase; font-size:0.85rem; font-weight:600; transition:color 0.2s;" onmouseover="this.style.color='var(--white)'" onmouseout="this.style.color='var(--muted)'">Independent Review →</a>
+            <a href="model-review.html" style="color:var(--muted); text-decoration:none; padding:1.25rem 0; border-bottom:2px solid transparent; text-transform:uppercase; font-size:0.85rem; font-weight:600; transition:color 0.2s; display:flex; align-items:center; gap:0.5rem;" onmouseover="this.style.color='var(--white)'" onmouseout="this.style.color='var(--muted)'">Model Review <span id="pending-tab-badge" style="background:var(--yellow); color:var(--black); font-size:0.65rem; padding:0.1rem 0.4rem; border-radius:2px; font-weight:700; display:none;"></span></a>
         </div>
 
         <main class="layout stagger-in">
@@ -186,6 +187,27 @@
                     }
                 }
             });
+
+            // Update pending model badge on tab
+            const stored = sessionStorage.getItem('faiRe_active_model');
+            if (stored) {
+                try {
+                    const m = JSON.parse(stored);
+                    const badge = document.getElementById('pending-tab-badge');
+                    if (badge) {
+                        if (m.status === 'AWAITING_BUSINESS_CONFIRMATION' || m.status === 'PENDING_COMPLIANCE') {
+                            badge.textContent = '1 PENDING';
+                            badge.style.display = 'inline-block';
+                        } else {
+                            badge.textContent = '';
+                            badge.style.display = 'none';
+                        }
+                    }
+                } catch(e) {}
+            } else {
+                const badge = document.getElementById('pending-tab-badge');
+                if (badge) { badge.textContent = ''; badge.style.display = 'none'; }
+            }
         });
 
         let currentAppId = null;

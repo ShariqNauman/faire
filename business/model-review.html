@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business | Model Review - FaiRe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/global.css">
+    <style>
+        body { overflow-y: auto; }
+
+        .page-layout {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+
+        /* ── Tab Nav ── */
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid var(--muted);
+            padding: 0 3rem;
+            gap: 2rem;
+        }
+        .tab-link {
+            color: var(--muted);
+            text-decoration: none;
+            padding: 1.25rem 0;
+            border-bottom: 2px solid transparent;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .tab-link:hover { color: var(--white); }
+        .tab-link.active { color: var(--yellow); border-bottom-color: var(--yellow); }
+
+        /* ── Two-column layout ── */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            height: calc(100vh - 130px);
+            overflow: hidden;
+        }
+
+        /* ── Left: Queue panel ── */
+        .queue-panel {
+            width: 380px;
+            border-right: 1px solid var(--muted);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .queue-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .queue-header h3 { font-family: 'Syne'; font-size: 1rem; }
+        .queue-section-label {
+            font-family: 'IBM Plex Mono';
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+            padding: 0.75rem 2rem 0.4rem;
+            background: var(--black);
+        }
+        .queue-list { flex: 1; overflow-y: auto; }
+
+        /* ── Model Queue Card ── */
+        .model-card {
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid #1a1a1a;
+            cursor: pointer;
+            transition: background 0.2s, border-left 0.2s;
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+        .model-card:hover { background: rgba(255,255,255,0.03); }
+        .model-card.selected {
+            background: rgba(255, 231, 13, 0.05);
+            border-left-color: var(--yellow);
+        }
+        .model-card.pending-card { border-left-color: rgba(255,231,13,0.3); }
+        .model-card.pending-card.selected { border-left-color: var(--yellow); }
+        .model-card.approved-card { border-left-color: rgba(0,255,127,0.2); }
+        .model-card.approved-card.selected { border-left-color: #00FF7F; }
+        .model-card.rejected-card { border-left-color: rgba(253,51,51,0.2); }
+
+        .model-card-id {
+            font-family: 'IBM Plex Mono';
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 0.3rem;
+        }
+        .model-card-desc {
+            font-family: 'IBM Plex Mono';
+            font-size: 0.7rem;
+            color: var(--muted);
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .model-card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .model-card-dev {
+            font-family: 'IBM Plex Mono';
+            font-size: 0.65rem;
+            color: var(--muted);
+        }
+        .pulse-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--yellow);
+            position: absolute;
+            top: 1.25rem; right: 2rem;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.7); }
+        }
+
+        /* ── Right: Detail panel ── */
+        .detail-panel {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Empty state ── */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            color: var(--muted);
+            text-align: center;
+            padding: 4rem;
+        }
+        .empty-state .empty-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+        .empty-state h3 { font-family: 'Syne'; font-size: 1.5rem; color: var(--white); }
+        .empty-state p { font-family: 'IBM Plex Mono'; font-size: 0.8rem; max-width: 380px; line-height: 1.7; }
+
+        /* ── Approved detail view ── */
+        .approved-detail {
+            padding: 3rem;
+        }
+
+        /* ── Checkpoint flow (embedded) ── */
+        .checkpoint-flow { padding: 2rem 3rem; }
+
+        /* ── Checkpoint model banner ── */
+        .model-review-banner {
+            background: var(--gray);
+            border: 1px solid var(--muted);
+            border-left: 3px solid var(--yellow);
+            padding: 1.25rem 1.75rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        .banner-model-id-text {
+            font-family: 'IBM Plex Mono';
+            font-size: 1rem;
+            color: var(--yellow);
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+        .banner-desc-text {
+            color: var(--muted);
+            font-size: 0.8rem;
+            line-height: 1.6;
+        }
+        .banner-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+            font-family: 'IBM Plex Mono';
+            font-size: 0.7rem;
+            color: var(--muted);
+        }
+        .banner-meta span { color: var(--white); }
+        .training-toggle {
+            margin-top: 0.5rem;
+            font-family: 'IBM Plex Mono';
+            font-size: 0.7rem;
+            color: var(--yellow);
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .training-summary-block {
+            margin-top: 0.4rem;
+            background: var(--black);
+            border: 1px solid var(--muted);
+            padding: 0.6rem 0.75rem;
+            font-family: 'IBM Plex Mono';
+            font-size: 0.7rem;
+            color: var(--muted);
+            display: none;
+        }
+
+        /* ── Stage cards ── */
+        .stages-row {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .stage-card {
+            flex: 1;
+            background: var(--gray);
+            padding: 1.75rem;
+            position: relative;
+            border-left: 2px solid var(--muted);
+            transition: all 0.3s;
+        }
+        .stage-card.active { border-left-color: var(--yellow); }
+        .stage-card.locked { opacity: 0.45; pointer-events: none; }
+        .stage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+        .stage-header h2 { font-size: 1.2rem; font-family: 'Syne'; margin-top: 0.3rem; }
+        .arrow-connector {
+            position: absolute;
+            right: -1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            font-size: 1.5rem;
+            color: var(--muted);
+        }
+
+        /* SVG arcs */
+        .arc-container { display: flex; justify-content: space-around; margin: 1.25rem 0; }
+        .arc { width: 70px; height: 70px; position: relative; }
+        .arc svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+        .arc circle { fill: none; stroke-width: 8; stroke-linecap: round; }
+        .arc .bg { stroke: var(--muted); }
+        .arc .fill { stroke: var(--yellow); stroke-dasharray: 251; stroke-dashoffset: 251; }
+        .arc-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'IBM Plex Mono'; font-size: 0.78rem; font-weight: 600; }
+        .arc-title { text-align: center; font-size: 0.58rem; text-transform: uppercase; margin-top: 0.4rem; color: var(--muted); letter-spacing: 0.1em; }
+
+        /* Telemetry console */
+        .telem-console {
+            background: var(--black);
+            border: 1px solid var(--muted);
+            padding: 0.6rem 0.75rem;
+            font-family: 'IBM Plex Mono';
+            font-size: 0.65rem;
+            color: #00FF7F;
+            display: none;
+            margin-top: 0.75rem;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        .telem-line { margin-bottom: 0.2rem; }
+        .telem-line.muted-line { color: var(--muted); }
+
+        /* Stage 3 justifications */
+        .justifications-review {
+            background: var(--black);
+            border: 1px solid var(--muted);
+            border-left: 2px solid var(--red);
+            padding: 1rem;
+            margin-bottom: 1.25rem;
+            opacity: 0;
+        }
+        .justifications-review h4 { font-family: 'Syne'; font-size: 0.8rem; color: var(--red); text-transform: uppercase; margin-bottom: 0.75rem; letter-spacing: 0.05em; }
+        .just-item { margin-bottom: 0.75rem; }
+        .just-param { font-family: 'IBM Plex Mono'; font-size: 0.65rem; color: var(--yellow); text-transform: uppercase; margin-bottom: 0.2rem; }
+        .just-text { font-family: 'IBM Plex Mono'; font-size: 0.72rem; color: var(--muted); line-height: 1.5; padding-left: 0.6rem; border-left: 1px solid #3a3a3a; }
+        .just-confirm-row { display: flex; align-items: flex-start; gap: 0.5rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #2a2a2a; font-family: 'IBM Plex Mono'; font-size: 0.7rem; color: var(--muted); }
+        .just-confirm-row input[type="checkbox"] { width: auto; margin-top: 0.1rem; accent-color: var(--yellow); cursor: pointer; }
+
+        textarea, input[type="text"] {
+            background: var(--black);
+            border: 1px solid var(--muted);
+            color: var(--white);
+            padding: 0.75rem;
+            width: 100%;
+            font-family: 'IBM Plex Mono';
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        /* Approved model detail card */
+        .detail-field { margin-bottom: 1.25rem; }
+        .detail-label { font-family: 'IBM Plex Mono'; font-size: 0.65rem; text-transform: uppercase; color: var(--yellow); margin-bottom: 0.3rem; }
+        .detail-value { font-family: 'IBM Plex Mono'; font-size: 0.82rem; color: var(--white); line-height: 1.6; }
+        .just-display-row { border-left: 2px solid var(--red); padding-left: 0.75rem; margin-bottom: 0.75rem; }
+        .just-display-key { font-family: 'IBM Plex Mono'; font-size: 0.65rem; color: var(--red); margin-bottom: 0.2rem; }
+        .just-display-val { font-family: 'IBM Plex Mono'; font-size: 0.78rem; color: var(--muted); }
+
+        /* Approved badge strip */
+        .approved-strip {
+            background: rgba(0,255,127,0.07);
+            border: 1px solid #00FF7F;
+            border-left: 3px solid #00FF7F;
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'IBM Plex Mono';
+            font-size: 0.78rem;
+            color: #00FF7F;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="main-content" style="display:flex; height:100vh; flex-direction:column;">
+        <nav class="nav-bar stagger-in">
+            <div class="nav-logo"><a href="../index.html">FaiRe</a></div>
+            <div class="nav-breadcrumb">BUSINESS / MODEL COMPLIANCE REVIEW</div>
+            <div class="nav-role" style="border-color: #00FF7F; color: #00FF7F;">STAFF ACCESS</div>
+        </nav>
+
+        <!-- Sub Navigation Tabs -->
+        <div class="tab-nav stagger-in">
+            <a href="records.html" class="tab-link">AI Decision Records</a>
+            <a href="independent-review.html" class="tab-link">Independent Review →</a>
+            <a href="#" class="tab-link active">Model Review <span id="pending-count-badge" style="background:var(--yellow); color:var(--black); font-size:0.65rem; padding:0.1rem 0.4rem; font-weight:700; border-radius:2px;"></span></a>
+        </div>
+
+        <main class="page-layout stagger-in">
+            <div class="content-area">
+
+                <!-- ── Left: Queue Panel ── -->
+                <div class="queue-panel">
+                    <div class="queue-header">
+                        <h3>Compliance Queue</h3>
+                        <i data-lucide="inbox" style="color:var(--muted); width:16px;"></i>
+                    </div>
+                    <div class="queue-list" id="queue-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- ── Right: Detail Panel ── -->
+                <div class="detail-panel" id="detail-panel">
+                    <!-- Default: empty state -->
+                    <div class="empty-state" id="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <h3>Select a Model to Review</h3>
+                        <p>Choose a pending model from the queue on the left to begin the 3-stage compliance checkpoint process.</p>
+                    </div>
+
+                    <!-- Checkpoint flow (hidden by default, shown when a pending model is selected) -->
+                    <div class="checkpoint-flow" id="checkpoint-flow" style="display:none;">
+
+                        <!-- Model Under Review Banner -->
+                        <div class="model-review-banner" id="banner">
+                            <i data-lucide="lock" style="color:var(--yellow); width:18px; height:18px; flex-shrink:0; margin-top:0.15rem;"></i>
+                            <div style="flex:1;">
+                                <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:0.25rem;">
+                                    <span class="banner-model-id-text" id="banner-mid">—</span>
+                                    <div class="status-badge pending">PENDING REVIEW</div>
+                                </div>
+                                <div class="banner-desc-text" id="banner-desc">—</div>
+                                <div class="banner-meta">
+                                    <div>DEVELOPER: <span id="banner-dev">—</span></div>
+                                    <div>SUBMITTED: <span id="banner-ts">—</span></div>
+                                </div>
+                                <div class="training-toggle" id="training-toggle-btn" onclick="toggleTraining()">▶ View Training Data Summary</div>
+                                <div class="training-summary-block" id="training-summary-block">—</div>
+                            </div>
+                        </div>
+
+                        <!-- 3-Stage Compliance Row -->
+                        <div class="stages-row">
+
+                            <!-- Stage 1 -->
+                            <div class="stage-card active" id="stg-1">
+                                <div class="stage-header">
+                                    <div>
+                                        <span style="color:var(--muted); font-size:0.7rem;">STAGE 1</span>
+                                        <h2>Pre-Dev Legal Check</h2>
+                                    </div>
+                                    <div class="status-badge pending" id="bdg-1">PENDING</div>
+                                </div>
+                                <p style="color:var(--muted); font-size:0.8rem; margin-bottom:0.75rem;">Input proposed system scope for legal NLP analysis.</p>
+                                <textarea id="scope-tx" style="height:80px; margin-bottom:0.75rem;" placeholder="Paste JSON feature list or requirements..."></textarea>
+                                <button class="btn btn-yellow" style="width:100%; font-size:0.85rem;" onclick="runStage1()">Run Legal Scan</button>
+                                <div id="stg1-res" style="margin-top:1.25rem; display:none;">
+                                    <div class="violation-card" style="border-color:#00FF7F">
+                                        <i data-lucide="check" style="color:#00FF7F"></i>
+                                        <div><strong style="color:var(--white);">Cleared:</strong> No direct violations of ADEA, Title VII, or ADA detected.</div>
+                                    </div>
+                                </div>
+                                <div class="arrow-connector">→</div>
+                            </div>
+
+                            <!-- Stage 2 -->
+                            <div class="stage-card locked" id="stg-2">
+                                <div class="stage-header">
+                                    <div>
+                                        <span style="color:var(--muted); font-size:0.7rem;">STAGE 2</span>
+                                        <h2>Pre-Testing Ethical</h2>
+                                    </div>
+                                    <div class="status-badge pending" id="bdg-2">WAITING</div>
+                                </div>
+                                <p style="color:var(--muted); font-size:0.8rem; margin-bottom:0.75rem;">Verify developer pipeline metrics against ethical thresholds.</p>
+                                <div class="arc-container">
+                                    <div>
+                                        <div class="arc">
+                                            <svg viewBox="0 0 100 100">
+                                                <circle class="bg" cx="50" cy="50" r="40"></circle>
+                                                <circle class="fill" id="arc-1" cx="50" cy="50" r="40"></circle>
+                                            </svg>
+                                            <div class="arc-label" id="arc-lbl-1">0%</div>
+                                        </div>
+                                        <div class="arc-title">Fairness</div>
+                                    </div>
+                                    <div>
+                                        <div class="arc">
+                                            <svg viewBox="0 0 100 100">
+                                                <circle class="bg" cx="50" cy="50" r="40"></circle>
+                                                <circle class="fill" id="arc-2" cx="50" cy="50" r="40"></circle>
+                                            </svg>
+                                            <div class="arc-label" id="arc-lbl-2">0%</div>
+                                        </div>
+                                        <div class="arc-title">Transparency</div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-yellow" style="width:100%; font-size:0.85rem;" id="btn-stg2" onclick="runStage2()">Poll Telemetry</button>
+                                <div class="telem-console" id="telem-console"></div>
+                                <div class="arrow-connector">→</div>
+                            </div>
+
+                            <!-- Stage 3 -->
+                            <div class="stage-card locked" id="stg-3">
+                                <div class="stage-header">
+                                    <div>
+                                        <span style="color:var(--muted); font-size:0.7rem;">STAGE 3</span>
+                                        <h2>Deployment Audit</h2>
+                                    </div>
+                                    <div class="status-badge pending" id="bdg-3">WAITING</div>
+                                </div>
+                                <div style="background:var(--black); padding:0.75rem; border:1px solid var(--muted); margin-bottom:1.25rem;">
+                                    <p style="font-size:0.8rem; margin-bottom:0.4rem;"><i data-lucide="check-circle-2" id="chk-1" style="color:var(--muted); width:13px; margin-right:0.4rem;"></i> Stage 1 Cleared</p>
+                                    <p style="font-size:0.8rem;"><i data-lucide="check-circle-2" id="chk-2" style="color:var(--muted); width:13px; margin-right:0.4rem;"></i> Stage 2 Thresholds Met</p>
+                                </div>
+
+                                <!-- Justifications review block -->
+                                <div class="justifications-review" id="justifications-block">
+                                    <h4>Developer Justifications Review</h4>
+                                    <div class="just-item">
+                                        <div class="just-param">Postcode_Radius_Match</div>
+                                        <div class="just-text" id="just-postcode-display">—</div>
+                                    </div>
+                                    <div class="just-item">
+                                        <div class="just-param">Education_Tier_Filter</div>
+                                        <div class="just-text" id="just-education-display">—</div>
+                                    </div>
+                                    <div class="just-confirm-row">
+                                        <input type="checkbox" id="just-confirmed" onchange="checkSignOff()">
+                                        <label for="just-confirmed">I have reviewed the justifications for all sensitive proxy attributes and declare them legally compliant.</label>
+                                    </div>
+                                </div>
+
+                                <label style="color:var(--muted); font-size:0.7rem; text-transform:uppercase;">Reviewer Key</label>
+                                <input type="text" id="reviewer-key" style="margin-bottom:0.75rem; margin-top:0.3rem;" placeholder="Legal Counsel ID" oninput="checkSignOff()">
+
+                                <div style="display:flex; gap:0.75rem;">
+                                    <button class="btn btn-red" style="flex:1; font-size:0.8rem;" onclick="rejectActiveModel()">Reject</button>
+                                    <button class="btn btn-yellow" style="flex:1; font-size:0.8rem;" id="btn-signoff" disabled onclick="approveActiveModel()">Sign Off ✓</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Approved model detail view (shown when approved model is selected) -->
+                    <div class="approved-detail" id="approved-detail" style="display:none;">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="../scripts/shared.js"></script>
+    <script>
+        // ── Data store ────────────────────────────────────────────────────────
+        const DEFAULT_FALLBACK = {
+            modelId: "FAI-883-XGB",
+            developerId: "EMP-9921",
+            trainingSummary: "Dataset: 42,000 applicant records (2020–2025). Demographic bounds: AU metro. Validation: 5-fold CV with stratified sampling.",
+            justifications: {
+                postcode: "Postcode proximity is used solely to determine commute feasibility for on-site roles. Geographic bias mitigated via a 50km radius threshold applied uniformly across all candidates.",
+                education: "Education tier filter applied post-score to ensure minimum qualification requirements per AS/NZS role standards. Justified under the bona fide occupational requirement (BFOR) clause."
+            },
+            plainDescription: "Lead Systems Engineer matching algorithm prioritizing infrastructure tenure and cloud stack alignment.",
+            timestamp: new Date(Date.now() - 3600000).toISOString(),
+            status: "AWAITING_BUSINESS_CONFIRMATION"
+        };
+
+        // Historical approved models (mock)
+        let modelRegistry = [
+            {
+                modelId: "FAI-451-RFC",
+                developerId: "EMP-3324",
+                trainingSummary: "Dataset: 28,000 records. Validated using holdout set.",
+                justifications: { postcode: "N/A", education: "Age proxy flagged but resolved via re-weighting." },
+                plainDescription: "Junior developer screening tool for entry-level roles.",
+                timestamp: "2026-05-18T14:22:01Z",
+                status: "APPROVED_FOR_PRODUCTION",
+                approvedAt: "2026-05-19T09:14:00Z",
+                reviewedBy: "LGL-0042"
+            },
+            {
+                modelId: "FAI-399-SVM",
+                developerId: "EMP-8821",
+                trainingSummary: "Dataset: 15,000 records. Clean run with no sensitive flags.",
+                justifications: { postcode: "N/A", education: "N/A" },
+                plainDescription: "Customer service candidate scoring model.",
+                timestamp: "2026-05-10T09:12:44Z",
+                status: "APPROVED_FOR_PRODUCTION",
+                approvedAt: "2026-05-11T11:30:00Z",
+                reviewedBy: "LGL-0039"
+            }
+        ];
+
+        // Load active pending model from sessionStorage
+        let activeModel = null;
+        const stored = sessionStorage.getItem('faiRe_active_model');
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                // Only treat it as pending if it's awaiting confirmation
+                if (parsed.status === 'AWAITING_BUSINESS_CONFIRMATION' || parsed.status === 'PENDING_COMPLIANCE') {
+                    activeModel = parsed;
+                } else if (parsed.status === 'APPROVED_FOR_PRODUCTION') {
+                    // Already approved — add to top of registry if not already present
+                    const exists = modelRegistry.find(m => m.modelId === parsed.modelId);
+                    if (!exists) modelRegistry.unshift(parsed);
+                }
+            } catch(e) {}
+        }
+        // Fallback to default if nothing in session
+        if (!activeModel) activeModel = DEFAULT_FALLBACK;
+
+        let selectedModelId = null;
+        let trainingOpen = false;
+        let stageResetPending = false;
+
+        // ── Render Queue ──────────────────────────────────────────────────────
+        function renderQueue() {
+            const list = document.getElementById('queue-list');
+            list.innerHTML = '';
+
+            // Pending section
+            const pendingLabel = document.createElement('div');
+            pendingLabel.className = 'queue-section-label';
+            pendingLabel.textContent = '⏳  Pending Review';
+            list.appendChild(pendingLabel);
+
+            if (activeModel && (activeModel.status === 'AWAITING_BUSINESS_CONFIRMATION' || activeModel.status === 'PENDING_COMPLIANCE')) {
+                list.appendChild(createModelCard(activeModel, 'pending'));
+                document.getElementById('pending-count-badge').textContent = '1 PENDING';
+            } else {
+                const noEl = document.createElement('div');
+                noEl.style.cssText = 'padding:1.25rem 2rem; font-family:"IBM Plex Mono"; font-size:0.75rem; color:var(--muted);';
+                noEl.textContent = 'No models pending review.';
+                list.appendChild(noEl);
+                document.getElementById('pending-count-badge').style.display = 'none';
+            }
+
+            // Approved section
+            const approvedLabel = document.createElement('div');
+            approvedLabel.className = 'queue-section-label';
+            approvedLabel.style.marginTop = '0.5rem';
+            approvedLabel.textContent = '✓  Approved Models';
+            list.appendChild(approvedLabel);
+
+            const approved = modelRegistry.filter(m => m.status === 'APPROVED_FOR_PRODUCTION');
+            if (approved.length === 0) {
+                const noEl = document.createElement('div');
+                noEl.style.cssText = 'padding:1.25rem 2rem; font-family:"IBM Plex Mono"; font-size:0.75rem; color:var(--muted);';
+                noEl.textContent = 'No approved models yet.';
+                list.appendChild(noEl);
+            } else {
+                approved.forEach(m => list.appendChild(createModelCard(m, 'approved')));
+            }
+
+            // Rejected section
+            const rejected = modelRegistry.filter(m => m.status === 'REJECTED');
+            if (rejected.length > 0) {
+                const rejLabel = document.createElement('div');
+                rejLabel.className = 'queue-section-label';
+                rejLabel.style.marginTop = '0.5rem';
+                rejLabel.textContent = '✗  Rejected';
+                list.appendChild(rejLabel);
+                rejected.forEach(m => list.appendChild(createModelCard(m, 'rejected')));
+            }
+        }
+
+        function createModelCard(model, type) {
+            const card = document.createElement('div');
+            card.className = `model-card ${type}-card` + (selectedModelId === model.modelId ? ' selected' : '');
+            card.id = `card-${model.modelId}`;
+            card.onclick = () => selectModel(model.modelId, type);
+
+            const statusBadge = type === 'pending'
+                ? `<div class="status-badge pending" style="font-size:0.65rem; padding:0.15rem 0.4rem;">PENDING</div>`
+                : type === 'approved'
+                    ? `<div class="status-badge approved" style="font-size:0.65rem; padding:0.15rem 0.4rem;">APPROVED</div>`
+                    : `<div class="status-badge failed" style="font-size:0.65rem; padding:0.15rem 0.4rem;">REJECTED</div>`;
+
+            card.innerHTML = `
+                <div class="model-card-id">${model.modelId}</div>
+                <div class="model-card-desc">${model.plainDescription || '—'}</div>
+                <div class="model-card-meta">
+                    <span class="model-card-dev">DEV: ${model.developerId}</span>
+                    ${statusBadge}
+                </div>
+            `;
+            if (type === 'pending') {
+                const dot = document.createElement('div');
+                dot.className = 'pulse-dot';
+                card.appendChild(dot);
+            }
+            return card;
+        }
+
+        // ── Select Model ──────────────────────────────────────────────────────
+        function selectModel(modelId, type) {
+            selectedModelId = modelId;
+
+            // Update card selection state
+            document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
+            const card = document.getElementById(`card-${modelId}`);
+            if (card) card.classList.add('selected');
+
+            if (type === 'pending') {
+                showCheckpointFlow();
+            } else {
+                const model = modelRegistry.find(m => m.modelId === modelId);
+                if (model) showApprovedDetail(model);
+            }
+        }
+
+        // ── Show Checkpoint Flow ──────────────────────────────────────────────
+        function showCheckpointFlow() {
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('approved-detail').style.display = 'none';
+            document.getElementById('checkpoint-flow').style.display = 'block';
+
+            // Reset stages if re-entering
+            if (stageResetPending) resetStages();
+            stageResetPending = false;
+
+            // Populate banner
+            const m = activeModel;
+            document.getElementById('banner-mid').textContent = m.modelId;
+            document.getElementById('banner-desc').textContent = m.plainDescription;
+            document.getElementById('banner-dev').textContent = m.developerId;
+            document.getElementById('banner-ts').textContent = new Date(m.timestamp).toLocaleString('en-AU');
+            document.getElementById('training-summary-block').textContent = m.trainingSummary || '—';
+
+            // Populate justifications
+            document.getElementById('just-postcode-display').textContent = m.justifications?.postcode || 'No justification provided.';
+            document.getElementById('just-education-display').textContent = m.justifications?.education || 'No justification provided.';
+
+            gsap.from('#checkpoint-flow', { opacity: 0, y: 15, duration: 0.4, ease: 'power2.out' });
+            lucide.createIcons();
+        }
+
+        function resetStages() {
+            // Stage 1
+            document.getElementById('bdg-1').className = 'status-badge pending'; document.getElementById('bdg-1').textContent = 'PENDING';
+            document.getElementById('stg1-res').style.display = 'none';
+            document.getElementById('scope-tx').value = '';
+            // Stage 2
+            document.getElementById('stg-2').className = 'stage-card locked';
+            document.getElementById('bdg-2').className = 'status-badge pending'; document.getElementById('bdg-2').textContent = 'WAITING';
+            document.getElementById('arc-1').style.strokeDashoffset = '251';
+            document.getElementById('arc-2').style.strokeDashoffset = '251';
+            document.getElementById('arc-lbl-1').textContent = '0%';
+            document.getElementById('arc-lbl-2').textContent = '0%';
+            document.getElementById('btn-stg2').innerText = 'Poll Telemetry';
+            document.getElementById('btn-stg2').disabled = false;
+            document.getElementById('telem-console').innerHTML = '';
+            document.getElementById('telem-console').style.display = 'none';
+            // Stage 3
+            document.getElementById('stg-3').className = 'stage-card locked';
+            document.getElementById('bdg-3').className = 'status-badge pending'; document.getElementById('bdg-3').textContent = 'WAITING';
+            document.getElementById('chk-1').style.color = 'var(--muted)';
+            document.getElementById('chk-2').style.color = 'var(--muted)';
+            document.getElementById('just-confirmed').checked = false;
+            document.getElementById('reviewer-key').value = '';
+            document.getElementById('btn-signoff').disabled = true;
+            gsap.set('#justifications-block', { opacity: 0, y: 15 });
+        }
+
+        // ── Show Approved Detail ──────────────────────────────────────────────
+        function showApprovedDetail(model) {
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('checkpoint-flow').style.display = 'none';
+            const panel = document.getElementById('approved-detail');
+            panel.style.display = 'block';
+
+            const flagCount = model.justifications
+                ? Object.values(model.justifications).filter(v => v !== 'N/A').length
+                : 0;
+
+            panel.innerHTML = `
+                <div class="approved-strip">
+                    <span style="font-size:1.1rem;">✓</span>
+                    <div>
+                        <strong>${model.modelId}</strong> — Approved for Production
+                        ${model.approvedAt ? `<span style="color:rgba(0,255,127,0.5); margin-left:1rem; font-size:0.7rem;">${new Date(model.approvedAt).toLocaleString('en-AU')}</span>` : ''}
+                        ${model.reviewedBy ? `<span style="color:rgba(0,255,127,0.5); margin-left:1rem; font-size:0.7rem;">REVIEWER: ${model.reviewedBy}</span>` : ''}
+                    </div>
+                </div>
+                <div class="detail-field">
+                    <div class="detail-label">Model ID</div>
+                    <div class="detail-value">${model.modelId}</div>
+                </div>
+                <div class="detail-field">
+                    <div class="detail-label">Plain Language Description</div>
+                    <div class="detail-value">${model.plainDescription}</div>
+                </div>
+                <div class="detail-field">
+                    <div class="detail-label">Developer ID</div>
+                    <div class="detail-value">${model.developerId}</div>
+                </div>
+                <div class="detail-field">
+                    <div class="detail-label">Submitted</div>
+                    <div class="detail-value" style="color:var(--muted);">${new Date(model.timestamp).toLocaleString('en-AU')}</div>
+                </div>
+                <div class="detail-field">
+                    <div class="detail-label">Training Data Summary</div>
+                    <div class="detail-value" style="color:var(--muted);">${model.trainingSummary || '—'}</div>
+                </div>
+                <div class="detail-field">
+                    <div class="detail-label">Sensitive Parameter Justifications (${flagCount} flagged)</div>
+                    <div class="just-display-row">
+                        <div class="just-display-key">Postcode_Radius_Match</div>
+                        <div class="just-display-val">${model.justifications?.postcode || '—'}</div>
+                    </div>
+                    <div class="just-display-row">
+                        <div class="just-display-key">Education_Tier_Filter</div>
+                        <div class="just-display-val">${model.justifications?.education || '—'}</div>
+                    </div>
+                </div>
+            `;
+
+            gsap.from(panel, { opacity: 0, y: 15, duration: 0.4, ease: 'power2.out' });
+        }
+
+        // ── Toggle Training Summary ───────────────────────────────────────────
+        function toggleTraining() {
+            const el = document.getElementById('training-summary-block');
+            const btn = document.getElementById('training-toggle-btn');
+            trainingOpen = !trainingOpen;
+            if (trainingOpen) {
+                el.style.display = 'block';
+                gsap.from(el, { opacity: 0, duration: 0.3 });
+                btn.textContent = '▼ Hide Training Data Summary';
+            } else {
+                gsap.to(el, { opacity: 0, duration: 0.2, onComplete: () => { el.style.display = 'none'; gsap.set(el, { clearProps: 'all' }); } });
+                btn.textContent = '▶ View Training Data Summary';
+            }
+        }
+
+        // ── Stage 1 ───────────────────────────────────────────────────────────
+        function runStage1() {
+            if (!document.getElementById('scope-tx').value) return;
+            gsap.to('#stg1-res', { display: 'block', opacity: 1, duration: 0.5 });
+            const bdg = document.getElementById('bdg-1');
+            bdg.className = 'status-badge approved'; bdg.innerText = 'APPROVED';
+            window.FaiRe.popBadge('#bdg-1');
+            setTimeout(() => {
+                document.getElementById('stg-2').classList.remove('locked');
+                document.getElementById('stg-2').classList.add('active');
+                document.getElementById('chk-1').style.color = '#00FF7F';
+                lucide.createIcons();
+            }, 500);
+        }
+
+        // ── Stage 2 ───────────────────────────────────────────────────────────
+        function runStage2() {
+            document.getElementById('btn-stg2').innerText = 'POLLING...';
+            document.getElementById('btn-stg2').disabled = true;
+
+            let fTarget = 96, tTarget = 88;
+            try {
+                const storedMetrics = sessionStorage.getItem('faiRe_pipeline_metrics');
+                if (storedMetrics) {
+                    const m = JSON.parse(storedMetrics);
+                    fTarget = m.fairness || 96;
+                    tTarget = m.transparency || 88;
+                }
+            } catch(e) {}
+
+            const con = document.getElementById('telem-console');
+            con.style.display = 'block';
+            const lines = [
+                { text: `[${new Date().toISOString()}] Connecting to developer pipeline...`, delay: 0 },
+                { text: `[SYS] Reading faiRe_pipeline_metrics from session...`, delay: 400, muted: true },
+                { text: `[DATA] Fairness: ${fTarget}% | Transparency: ${tTarget}%`, delay: 900 },
+                { text: `[EVAL] Thresholds: Fairness ≥ 80%, Transparency ≥ 75% — ${fTarget >= 80 && tTarget >= 75 ? '✓ PASS' : '✗ FAIL'}`, delay: 1400 },
+                { text: `[SYS] Validation complete.`, delay: 1900, muted: true }
+            ];
+            lines.forEach(l => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = 'telem-line' + (l.muted ? ' muted-line' : '');
+                    div.textContent = l.text;
+                    con.appendChild(div);
+                    con.scrollTop = con.scrollHeight;
+                }, l.delay);
+            });
+
+            gsap.to('#arc-1', { strokeDashoffset: 251 - (251 * fTarget / 100), duration: 2, ease: 'power2.out' });
+            gsap.to('#arc-2', { strokeDashoffset: 251 - (251 * tTarget / 100), duration: 2.5, ease: 'power2.out' });
+
+            let obj = { f: 0, t: 0 };
+            gsap.to(obj, {
+                f: fTarget, t: tTarget, duration: 2.5, onUpdate: function () {
+                    document.getElementById('arc-lbl-1').innerText = Math.floor(obj.f) + '%';
+                    document.getElementById('arc-lbl-2').innerText = Math.floor(obj.t) + '%';
+                }, onComplete: () => {
+                    document.getElementById('btn-stg2').innerText = 'VETTED';
+                    const bdg = document.getElementById('bdg-2');
+                    bdg.className = 'status-badge approved'; bdg.innerText = 'APPROVED';
+                    window.FaiRe.popBadge('#bdg-2');
+                    setTimeout(() => {
+                        document.getElementById('stg-3').classList.remove('locked');
+                        document.getElementById('stg-3').classList.add('active');
+                        document.getElementById('chk-2').style.color = '#00FF7F';
+                        gsap.to('#justifications-block', { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' });
+                        lucide.createIcons();
+                    }, 500);
+                }
+            });
+        }
+
+        // ── Stage 3 sign-off lock ─────────────────────────────────────────────
+        function checkSignOff() {
+            const confirmed = document.getElementById('just-confirmed').checked;
+            const key = document.getElementById('reviewer-key').value.trim();
+            document.getElementById('btn-signoff').disabled = !(confirmed && key.length > 0);
+        }
+
+        // ── Approve ───────────────────────────────────────────────────────────
+        function approveActiveModel() {
+            const reviewerKey = document.getElementById('reviewer-key').value.trim();
+            const bdg = document.getElementById('bdg-3');
+            bdg.className = 'status-badge approved'; bdg.innerText = 'APPROVED';
+            window.FaiRe.popBadge('#bdg-3');
+
+            // Move from pending to approved registry
+            const now = new Date().toISOString();
+            activeModel.status = 'APPROVED_FOR_PRODUCTION';
+            activeModel.approvedAt = now;
+            activeModel.reviewedBy = reviewerKey;
+
+            // Save to sessionStorage
+            sessionStorage.setItem('faiRe_active_model', JSON.stringify(activeModel));
+
+            // Add to registry (avoid duplicates)
+            const exists = modelRegistry.find(m => m.modelId === activeModel.modelId);
+            if (!exists) modelRegistry.unshift({ ...activeModel });
+
+            setTimeout(() => {
+                // Flash success overlay briefly
+                const overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:var(--yellow);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;';
+                overlay.innerHTML = `
+                    <h1 style='color:var(--black);font-family:Syne;font-size:3.5rem;font-weight:800;'>✓ MODEL APPROVED</h1>
+                    <p style='font-family:"IBM Plex Mono";color:rgba(0,0,0,0.6);font-size:0.9rem;'>${activeModel.modelId} — Added to Approved Models List</p>
+                `;
+                document.body.appendChild(overlay);
+                gsap.from(overlay, { opacity: 0, duration: 0.3 });
+
+                setTimeout(() => {
+                    gsap.to(overlay, { opacity: 0, duration: 0.4, onComplete: () => {
+                        document.body.removeChild(overlay);
+                        // Mark active model as done, re-render queue, show empty state
+                        activeModel = null;
+                        selectedModelId = null;
+                        stageResetPending = true;
+                        document.getElementById('checkpoint-flow').style.display = 'none';
+                        document.getElementById('empty-state').style.display = 'flex';
+                        renderQueue();
+                        lucide.createIcons();
+                    }});
+                }, 2000);
+            }, 400);
+        }
+
+        // ── Reject ────────────────────────────────────────────────────────────
+        function rejectActiveModel() {
+            const bdg = document.getElementById('bdg-3');
+            bdg.className = 'status-badge failed'; bdg.innerText = 'REJECTED';
+            window.FaiRe.popBadge('#bdg-3');
+
+            activeModel.status = 'REJECTED';
+            sessionStorage.setItem('faiRe_active_model', JSON.stringify(activeModel));
+
+            const exists = modelRegistry.find(m => m.modelId === activeModel.modelId);
+            if (!exists) modelRegistry.push({ ...activeModel });
+
+            setTimeout(() => {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:var(--red);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;';
+                overlay.innerHTML = `
+                    <h1 style='color:var(--white);font-family:Syne;font-size:3.5rem;font-weight:800;'>✗ MODEL REJECTED</h1>
+                    <p style='font-family:"IBM Plex Mono";color:rgba(255,255,255,0.6);font-size:0.9rem;'>${activeModel.modelId} — Returned to Developer for Revision</p>
+                `;
+                document.body.appendChild(overlay);
+                gsap.from(overlay, { opacity: 0, duration: 0.3 });
+
+                setTimeout(() => {
+                    gsap.to(overlay, { opacity: 0, duration: 0.4, onComplete: () => {
+                        document.body.removeChild(overlay);
+                        activeModel = null;
+                        selectedModelId = null;
+                        stageResetPending = true;
+                        document.getElementById('checkpoint-flow').style.display = 'none';
+                        document.getElementById('empty-state').style.display = 'flex';
+                        renderQueue();
+                        lucide.createIcons();
+                    }});
+                }, 2000);
+            }, 400);
+        }
+
+        // ── Init ──────────────────────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('faiRe_auth') !== 'true') {
+                window.location.href = 'records.html';
+                return;
+            }
+            window.FaiRe.staggerPageIn('.stagger-in');
+            renderQueue();
+            gsap.set('#justifications-block', { opacity: 0, y: 15 });
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
