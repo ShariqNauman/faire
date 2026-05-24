@@ -37,6 +37,25 @@
             letter-spacing: 0.25em;
             text-transform: uppercase;
             margin-bottom: 4rem;
+            min-height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .typewriter-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1.1em;
+            background-color: var(--yellow);
+            margin-left: 6px;
+            animation: cursor-blink 0.8s infinite;
+        }
+
+        @keyframes cursor-blink {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
         }
     </style>
 </head>
@@ -44,27 +63,38 @@
 
     <main class="home-container">
         <h1 class="hero-title stagger-in">Fai<span>Re</span></h1>
-        <p class="hero-subtitle stagger-in">Ethical AI Hiring Infrastructure</p>
+        <p class="hero-subtitle stagger-in">
+            <span class="typewriter-text">Ethical AI Hiring Infrastructure</span><span class="typewriter-cursor"></span>
+        </p>
         
         <div class="card-grid">
             <a href="applicant/apply.html" class="role-card stagger-in">
                 <i data-lucide="user" width="32" height="32"></i>
+                <div class="card-graphic">
+                    <i data-lucide="fingerprint"></i>
+                </div>
                 <div>
                     <h2>Applicant</h2>
                     <p>Apply and view AI screening decisions</p>
                 </div>
             </a>
-            
+
             <a href="business/records.html" class="role-card stagger-in">
                 <i data-lucide="building-2" width="32" height="32"></i>
+                <div class="card-graphic">
+                    <i data-lucide="shield-check"></i>
+                </div>
                 <div>
                     <h2>Business</h2>
                     <p>Review hiring records & compliance checkpoints</p>
                 </div>
             </a>
-            
+
             <a href="developer/data-audit.html" class="role-card stagger-in">
                 <i data-lucide="code-2" width="32" height="32"></i>
+                <div class="card-graphic">
+                    <i data-lucide="terminal"></i>
+                </div>
                 <div>
                     <h2>Developer</h2>
                     <p>Audit data, train models & check bias</p>
@@ -82,7 +112,52 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Trigger load animation utilizing the shared script function
             window.FaiRe.staggerPageIn('.stagger-in');
+            initTypewriter();
         });
+
+        function initTypewriter() {
+            const textElement = document.querySelector('.typewriter-text');
+            if (!textElement) return;
+
+            const phrases = [
+                "Ethical AI Hiring Infrastructure",
+                "Bias-Free Regulatory Pipelines",
+                "Trust & Compliance Parity Matrix"
+            ];
+
+            let index = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+            let timer = null;
+
+            textElement.textContent = "";
+
+            function play() {
+                const currentText = phrases[index];
+
+                if (isDeleting) {
+                    textElement.textContent = currentText.substring(0, charIndex - 1);
+                    charIndex--;
+                } else {
+                    textElement.textContent = currentText.substring(0, charIndex + 1);
+                    charIndex++;
+                }
+
+                let speed = isDeleting ? 30 : 65;
+
+                if (!isDeleting && charIndex === currentText.length) {
+                    speed = 2800; // Hold phrase
+                    isDeleting = true;
+                } else if (isDeleting && charIndex === 0) {
+                    isDeleting = false;
+                    index = (index + 1) % phrases.length;
+                    speed = 500;
+                }
+                timer = setTimeout(play, speed);
+            }
+
+            timer = setTimeout(play, 2000);
+        }
     </script>
 </body>
 </html>

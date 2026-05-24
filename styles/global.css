@@ -115,9 +115,10 @@ textarea:focus {
 }
 
 .role-card:hover {
-  background-color: var(--muted);
+  background-color: #121212;
   border-left-color: var(--yellow);
-  transform: translateY(-10px);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 231, 13, 0.05);
 }
 
 .role-card i {
@@ -130,6 +131,146 @@ textarea:focus {
 
 .role-card:hover i {
   color: var(--yellow);
+}
+
+/* Card Graphic Viewport HUD Scanner */
+.card-graphic {
+  width: 100%;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.5rem;
+  margin-bottom: 2rem;
+  background-color: #0c0c0c;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+              background-color 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+              box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  flex-shrink: 0;
+
+  background-image:
+    linear-gradient(to bottom, transparent, rgba(255, 231, 13, 0.18) 50%, transparent),
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 24px, 16px 16px, 16px 16px;
+  background-position: center -24px, center, center;
+  background-repeat: no-repeat, repeat, repeat;
+}
+
+.role-card:hover .card-graphic {
+  border-color: rgba(255, 231, 13, 0.25);
+  background-color: #070707;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8),
+              0 0 15px rgba(255, 231, 13, 0.02);
+  animation: laser-sweep 3s linear infinite;
+}
+
+.card-graphic::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 231, 13, 0.12) 0%, rgba(255, 231, 13, 0) 70%);
+  transform: translate(-50%, -50%) scale(0.85);
+  opacity: 0.15;
+  filter: blur(6px);
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+              transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.role-card:hover .card-graphic::before {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.25);
+}
+
+.card-graphic::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  background:
+    linear-gradient(to right, var(--muted) 8px, transparent 8px) 0 0,
+    linear-gradient(to bottom, var(--muted) 8px, transparent 8px) 0 0,
+    linear-gradient(to left, var(--muted) 8px, transparent 8px) 100% 0,
+    linear-gradient(to bottom, var(--muted) 8px, transparent 8px) 100% 0,
+    linear-gradient(to right, var(--muted) 8px, transparent 8px) 0 100%,
+    linear-gradient(to top, var(--muted) 8px, transparent 8px) 0 100%,
+    linear-gradient(to left, var(--muted) 8px, transparent 8px) 100% 100%,
+    linear-gradient(to top, var(--muted) 8px, transparent 8px) 100% 100%;
+  background-repeat: no-repeat;
+  background-size: 8px 8px;
+  opacity: 0.2;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+              background-image 0s;
+}
+
+.role-card:hover .card-graphic::after {
+  opacity: 0.75;
+  background-image:
+    linear-gradient(to right, var(--yellow) 8px, transparent 8px),
+    linear-gradient(to bottom, var(--yellow) 8px, transparent 8px),
+    linear-gradient(to left, var(--yellow) 8px, transparent 8px),
+    linear-gradient(to bottom, var(--yellow) 8px, transparent 8px),
+    linear-gradient(to right, var(--yellow) 8px, transparent 8px),
+    linear-gradient(to top, var(--yellow) 8px, transparent 8px),
+    linear-gradient(to left, var(--yellow) 8px, transparent 8px),
+    linear-gradient(to top, var(--yellow) 8px, transparent 8px);
+}
+
+.card-graphic i,
+.card-graphic svg {
+  position: relative !important;
+  z-index: 2;
+  color: var(--muted);
+  width: 96px !important;
+  height: 96px !important;
+  transition: color 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+              transform 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+              filter 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.card-graphic svg * {
+  stroke-width: 1.2px !important;
+}
+
+.role-card:hover .card-graphic i,
+.role-card:hover .card-graphic svg {
+  color: var(--yellow);
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 10px rgba(255, 231, 13, 0.25)) drop-shadow(0 0 2px rgba(255, 231, 13, 0.4));
+}
+
+@keyframes laser-sweep {
+  0% {
+    background-position: center -24px, center, center;
+  }
+  50% {
+    background-position: center 184px, center, center;
+  }
+  100% {
+    background-position: center -24px, center, center;
+  }
+}
+
+.card-graphic img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.role-card:hover .card-graphic img {
+  transform: scale(1.05);
 }
 
 .role-card h2 {
