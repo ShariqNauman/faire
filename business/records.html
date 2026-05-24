@@ -40,8 +40,17 @@
         <nav class="nav-bar stagger-in">
             <div class="nav-logo"><a href="../index.html">FaiRe</a></div>
             <div class="nav-breadcrumb">BUSINESS / AI DECISION RECORDS</div>
-            <div class="nav-role" style="border-color: #00FF7F; color: #00FF7F;">STAFF ACCESS</div>
+            <div style="display:flex; align-items:center; gap:2rem;">
+                <a href="independent-review.html" style="color:var(--yellow); font-family: 'IBM Plex Mono'; font-size:0.85rem; text-decoration:none;">[ Independent Review → ]</a>
+                <div class="nav-role" style="border-color: #00FF7F; color: #00FF7F;">STAFF ACCESS</div>
+            </div>
         </nav>
+
+        <!-- Sub Navigation Tabs -->
+        <div class="stagger-in" style="display:flex; border-bottom:1px solid var(--muted); padding: 0 3rem; gap: 2rem;">
+            <a href="#" style="color:var(--yellow); text-decoration:none; padding:1.25rem 0; border-bottom:2px solid var(--yellow); text-transform:uppercase; font-size:0.85rem; font-weight:600;">AI Decision Records</a>
+            <a href="independent-review.html" style="color:var(--muted); text-decoration:none; padding:1.25rem 0; border-bottom:2px solid transparent; text-transform:uppercase; font-size:0.85rem; font-weight:600; transition:color 0.2s;" onmouseover="this.style.color='var(--white)'" onmouseout="this.style.color='var(--muted)'">Independent Review →</a>
+        </div>
 
         <main class="layout stagger-in">
             <div style="display:flex; justify-content:space-between; align-items:flex-end;">
@@ -96,6 +105,25 @@
                 </div>
             </div>
 
+            <!-- Full Application Summary Section -->
+            <div style="border: 1px solid var(--muted); padding: 1.5rem; margin-bottom: 2rem; background: #050505;">
+                <p style="color:var(--white); font-size:0.85rem; margin-bottom:1rem;">Role Applied For: <strong>Lead Systems Engineer</strong></p>
+                <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                    <div style="font-family:'IBM Plex Mono'; font-size:0.85rem; color:var(--muted);">
+                        <p style="color:var(--white); font-family:'Syne'; margin-bottom:0.5rem; text-transform:uppercase; font-size:0.75rem;">Resume Extracted Fields</p>
+                        experience_years    = 3<br>
+                        degree              = "B.Sc. Computer Science"<br>
+                        leadership_reported = false<br>
+                        cloud_certs         = ["AWS-SAA"]
+                    </div>
+                    <div style="font-size:0.85rem; text-align:right;">
+                        <p style="color:var(--white); margin-bottom:0.5rem;">Consent Status: <span style="color:#00FF7F;">✓ Granted</span></p>
+                        <p style="color:var(--white);">Data Strip Confirmed: <span style="color:#00FF7F;">✓ PII Stripped</span></p>
+                    </div>
+                </div>
+                <p style="color:var(--red); opacity:0.8; font-size:0.75rem; border-top:1px solid #2e2e2e; padding-top:1rem;">Sensitive fields removed before model inference: Date_Of_Birth, Gender_Identity, Ethnicity_Survey, Home_Postcode</p>
+            </div>
+
             <div class="violation-card">
                 <i data-lucide="info"></i>
                 <div style="flex:1;">
@@ -119,6 +147,7 @@
             const pwd = document.getElementById('pwd').value;
 
             if(sid === 'admin' && pwd === 'admin') {
+                sessionStorage.setItem('faiRe_auth', 'true');
                 gsap.to('#login-gate', {opacity: 0, scale: 1.1, duration: 0.5, onComplete: () => {
                     document.getElementById('login-gate').style.display = 'none';
                     document.getElementById('main-content').style.display = 'flex';
@@ -130,19 +159,67 @@
             }
         }
 
+        document.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('faiRe_auth') === 'true') {
+                document.getElementById('login-gate').style.display = 'none';
+                document.getElementById('main-content').style.display = 'flex';
+                window.FaiRe.staggerPageIn('.stagger-in');
+            }
+
+            // Sync and apply active overrides in the datatable rows from sessionStorage
+            const overridesMap = JSON.parse(sessionStorage.getItem('faiRe_overrides')) || {};
+            const rows = document.querySelectorAll('.data-table tbody tr');
+            rows.forEach(row => {
+                const idCell = row.cells[0];
+                if (idCell) {
+                    const id = idCell.innerText.trim();
+                    if (overridesMap[id]) {
+                        const newStatus = overridesMap[id].status;
+                        const decisionCell = row.cells[4]; // Column index 4: Decision badge
+                        if (decisionCell) {
+                            const badge = decisionCell.querySelector('.status-badge');
+                            if (badge) {
+                                badge.innerText = newStatus;
+                                badge.className = newStatus === 'APPROVED' ? 'status-badge approved' : 'status-badge failed';
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        let currentAppId = null;
+        let currentStatus = null;
+
         function openRecordModal(id, name, status, reason) {
+            // Load sessionStorage overrides dynamically
+            const overridesMap = JSON.parse(sessionStorage.getItem('faiRe_overrides')) || {};
+            if (overridesMap[id]) {
+                status = overridesMap[id].status;
+            }
+
+            currentAppId = id;
+            currentStatus = status;
+
             document.getElementById('modal-name').innerText = name;
             document.getElementById('modal-id').innerText = id;
 
             const statusEl = document.getElementById('modal-status');
             statusEl.innerText = status;
+
             if (status === 'APPROVED') {
                 statusEl.className = 'status-badge approved';
             } else {
                 statusEl.className = 'status-badge failed';
             }
 
-            document.getElementById('modal-reason').innerText = reason;
+            const reasonEl = document.getElementById('modal-reason');
+            if (overridesMap[id]) {
+                reasonEl.innerHTML = `<strong style="color:var(--yellow)">[OVERRIDDEN BY COMPLIANCE AUDITOR]</strong><br><span style="color:var(--white)">Justification:</span> ${overridesMap[id].justification}<br><br><span style="color:var(--muted)">Original Model Reason:</span> ${reason}`;
+            } else {
+                reasonEl.innerText = reason;
+            }
+
             window.FaiRe.toggleModal('rec-modal', true);
         }
     </script>

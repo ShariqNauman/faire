@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business | Independent Review - FaiRe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/global.css">
+    <style>
+        .layout { flex: 1; display: flex; flex-direction: row; height: calc(100vh - 85px); overflow: hidden; }
+
+        .action-side { flex: 1; padding: 4rem; overflow-y: auto; }
+        .log-side { width: 350px; background: var(--gray); border-left: 1px solid var(--muted); display: flex; flex-direction: column; }
+
+        .role-badge-box { border: 1px solid var(--yellow); padding: 1.5rem; display: inline-block; margin-bottom: 3rem; background: rgba(255, 231, 13, 0.05);}
+        .role-badge-box p { font-family: 'IBM Plex Mono'; font-size: 0.85rem; color: var(--white); margin: 0.25rem 0;}
+        .role-badge-box span { color: var(--yellow); }
+
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
+        .data-table th, .data-table td { border-bottom: 1px solid var(--muted); padding: 1.5rem 1rem; text-align: left; }
+        .data-table th { color: var(--muted); font-family: 'Syne', sans-serif; text-transform: uppercase; }
+        .data-table tbody tr.main-row { cursor: pointer; transition: background 0.2s; }
+        .data-table tbody tr.main-row:hover { background: var(--gray); }
+
+        .expanded-row { display: none; }
+        .expanded-row.active { display: table-row; }
+        .expanded-content { background: var(--black); border-left: 3px solid var(--yellow); padding: 2rem; margin: 1rem 0; overflow: hidden;}
+
+        .log-entry { font-family: 'IBM Plex Mono'; font-size: 0.75rem; color: var(--muted); border-bottom: 1px solid #2e2e2e; padding-bottom: 1rem; margin-bottom: 1rem; }
+
+        .checkbox-group { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem;}
+        .checkbox-group input[type="checkbox"] { accent-color: var(--yellow); width: 18px; height: 18px; margin-top: 0.2rem;}
+        .checkbox-group label { font-size: 0.85rem; color: var(--white); cursor: pointer; flex: 1; line-height: 1.4;}
+    </style>
+</head>
+<body>
+
+    <!-- Main App Layout -->
+    <div id="main-content" style="display:flex; height:100vh; flex-direction:column;">
+        <nav class="nav-bar stagger-in">
+            <div class="nav-logo"><a href="records.html">FaiRe</a></div>
+            <div class="nav-breadcrumb">BUSINESS / INDEPENDENT COMPLIANCE REVIEW</div>
+            <div class="nav-role" style="border-color: var(--yellow); color: var(--yellow);">EXTERNAL COMPLIANCE</div>
+        </nav>
+
+        <!-- Sub Navigation Tabs -->
+        <div class="stagger-in" style="display:flex; border-bottom:1px solid var(--muted); padding: 0 3rem; gap: 2rem;">
+            <a href="records.html" style="color:var(--muted); text-decoration:none; padding:1.25rem 0; border-bottom:2px solid transparent; text-transform:uppercase; font-size:0.85rem; font-weight:600; transition:color 0.2s;" onmouseover="this.style.color='var(--white)'" onmouseout="this.style.color='var(--muted)'">AI Decision Records</a>
+            <a href="#" style="color:var(--yellow); text-decoration:none; padding:1.25rem 0; border-bottom:2px solid var(--yellow); text-transform:uppercase; font-size:0.85rem; font-weight:600;">Independent Review →</a>
+        </div>
+
+        <main class="layout stagger-in">
+            <div class="action-side">
+
+                <h1 style="font-size: 3rem; margin-bottom: 1rem;">Independent Compliance Review</h1>
+                <p style="color:var(--muted); max-width: 800px; margin-bottom: 2rem; font-size:0.85rem; line-height:1.6;">As an independent reviewer, you hold a structural obligation under deontological ethics to assess this system without influence from the development team. You must be willing to block deployment regardless of internal pressure.</p>
+
+                <div class="role-badge-box">
+                    <p><span>REVIEWER ROLE:</span> External Compliance Officer</p>
+                    <p><span>MANDATE:</span> Independent — Non-Development Oversight</p>
+                    <p><span>OBLIGATION:</span> Structural (Deontological)</p>
+                </div>
+
+                <h2 style="font-size: 1.5rem; font-family:'Syne'; border-bottom:1px solid var(--muted); padding-bottom:1rem; margin-bottom:1rem;">Applicant Decisions Under Review</h2>
+
+                <table class="data-table">
+                    <thead>
+                        <tr><th>App ID</th><th>Candidate Name</th><th>AI Decision</th><th>Override Status</th><th>Review Status</th></tr>
+                    </thead>
+                    <tbody>
+                        <!-- Row 1 -->
+                        <tr class="main-row" onclick="toggleRow('APP-99281A')">
+                            <td>APP-99281A</td><td>Eleanor Vance</td>
+                            <td><div class="status-badge failed">REJECTED</div></td>
+                            <td>—</td>
+                            <td><div class="status-badge pending" id="rev-badge-APP-99281A">PENDING</div></td>
+                        </tr>
+                        <tr class="expanded-row" id="row-APP-99281A">
+                            <td colspan="5" style="padding:0; border-bottom:1px solid var(--muted);">
+                                <div class="expanded-content" id="exp-APP-99281A">
+                                    <!-- Rendered dynamically -->
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Row 2 -->
+                        <tr class="main-row" onclick="toggleRow('APP-99282B')">
+                            <td>APP-99282B</td><td>Julian Alvez</td>
+                            <td><div class="status-badge approved">APPROVED</div></td>
+                            <td>—</td>
+                            <td><div class="status-badge pending" id="rev-badge-APP-99282B">PENDING</div></td>
+                        </tr>
+                        <tr class="expanded-row" id="row-APP-99282B">
+                            <td colspan="5" style="padding:0; border-bottom:1px solid var(--muted);">
+                                <div class="expanded-content" id="exp-APP-99282B">
+                                    <!-- Rendered dynamically -->
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Row 3 -->
+                        <tr class="main-row" onclick="toggleRow('APP-99283C')">
+                            <td>APP-99283C</td><td>Sarah Chen</td>
+                            <td><div class="status-badge approved">APPROVED</div></td>
+                            <td><div class="status-badge pending" style="color:var(--yellow); border-color:var(--yellow);">OVERRIDDEN</div></td>
+                            <td><div class="status-badge pending" id="rev-badge-APP-99283C">PENDING</div></td>
+                        </tr>
+                        <tr class="expanded-row" id="row-APP-99283C">
+                            <td colspan="5" style="padding:0; border-bottom:1px solid var(--muted);">
+                                <div class="expanded-content" id="exp-APP-99283C">
+                                    <!-- Rendered dynamically -->
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+            <!-- Audit Trail Log Side -->
+            <div class="log-side stagger-in" style="animation-delay: 0.2s;">
+                <div style="padding: 2rem; border-bottom: 1px solid var(--muted); display: flex; align-items: center; justify-content: space-between;">
+                    <h3 style="font-family:'Syne'; font-size:1.25rem;">Review Audit Trail</h3>
+                    <i data-lucide="lock" style="color:var(--yellow)"></i>
+                </div>
+                <div style="flex: 1; overflow-y: auto; padding: 2rem;" id="audit-list">
+                    <div class="log-entry" style="border-left: 2px solid var(--muted); padding-left:1rem;">
+                        <span style="color:var(--white)">TIME:</span> 2026-05-24T10:14:00Z<br>
+                        <span style="color:var(--white)">ACT:</span> SESSION_STARTED<br>
+                        <span style="color:var(--white)">USER:</span> Ext. Reviewer 04
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Template for inserting into expanded rows using JS -->
+    <template id="expanded-template">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2rem;">
+            <div>
+                <p style="color:var(--yellow); font-size:0.75rem; margin-bottom:0.5rem; text-transform:uppercase;">Evaluating Model AI Decision</p>
+                <div class="status-badge {AI_STATE_CLASS}">{AI_STATE_TEXT}</div>
+            </div>
+            <div style="text-align:right;">
+                <p style="color:var(--muted); font-size:0.75rem; margin-bottom:0.25rem;">Model used:</p>
+                <p style="font-family:'IBM Plex Mono'; font-size:0.85rem; color:var(--white);">FAI-883-XGB</p>
+            </div>
+        </div>
+
+        <div style="background:var(--black); border:1px solid #2e2e2e; padding:1.5rem; margin-bottom:2rem; font-family:'IBM Plex Mono'; font-size:0.85rem;">
+            <p style="color:var(--white); margin-bottom:1rem; border-bottom:1px solid #2e2e2e; padding-bottom:1rem;">Feature weights: <span style="color:var(--muted)">exp: 0.6, cert: 0.1, stack: 0.3</span></p>
+            <p style="color:var(--muted); font-size:0.75rem; margin-bottom:0.5rem; text-transform:uppercase;">Extracted fields:</p>
+            experience_years    = 3<br>
+            leadership_reported = false<br>
+            cloud_certs         = ["AWS-SAA"]
+        </div>
+
+        <div class="violation-card" style="border-left-color: var(--muted); margin-bottom: 3rem;">
+            <i data-lucide="info" style="color:var(--white)"></i>
+            <div style="flex:1;">
+                <strong style="color:var(--white);">Automated Justification</strong>
+                <p style="color:var(--muted); margin-top:0.25rem;">Candidate decision processed via algorithmic scoring weights. PII successfully stripped prior to vector generation.</p>
+            </div>
+        </div>
+
+        <!-- Independent Override Section -->
+        <div id="override-section-{ID}" style="margin-top: 2.5rem; margin-bottom: 2.5rem;">
+            <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;">
+                <hr style="flex:1; border:none; border-top:1px solid var(--muted);">
+                <span style="color:var(--muted); font-size:0.75rem; font-family:'IBM Plex Mono'; letter-spacing:0.1em;">MANUAL OVERRIDE — SENIOR STAFF ONLY</span>
+                <hr style="flex:1; border:none; border-top:1px solid var(--muted);">
+            </div>
+
+            <div class="violation-card" style="border-left-color: var(--yellow);">
+                <i data-lucide="alert-triangle" style="color:var(--yellow);"></i>
+                <p style="margin:0; color:var(--white);">Overriding an AI decision creates an immutable override record. This action is logged and attributed to your staff ID. Overrides require a written justification.</p>
+            </div>
+
+            <div id="override-input-area-{ID}">
+                <textarea id="override-justification-{ID}" style="margin-top:1rem; height:80px;" placeholder="Explain the grounds for overriding the AI decision (e.g. contextual factors not captured in resume, appeal outcome, human review finding)..." oninput="checkOverrideLen('{ID}')"></textarea>
+
+                <div id="override-actions-{ID}" style="display:flex; margin-top:1rem; gap:1rem;">
+                    <!-- Buttons injected via JS -->
+                </div>
+            </div>
+
+            <div id="override-success-{ID}" style="display:none; color:#00FF7F; font-size:0.85rem; margin-top:1rem; padding:1.5rem; background:#050505; border:1px solid #00FF7F;">
+                <i data-lucide="lock" style="height:16px; margin-right:8px; vertical-align:middle;"></i>
+                ✓ Override Logged. Record is immutable.
+            </div>
+
+            <div id="override-log-entry-{ID}" style="display:none; border-left:2px solid #00FF7F; padding-left:1.5rem; margin-top:1.5rem; font-family:'IBM Plex Mono'; font-size:0.75rem; color:var(--muted);">
+                <strong style="color:var(--white);">OVERRIDE_RECORD</strong><br>
+                TIME: <span id="log-time-{ID}"></span><br>
+                STAFF: admin<br>
+                ACTION: <span id="log-transition-{ID}" style="color:var(--white);"></span><br>
+                JUSTIFICATION: <span id="log-text-{ID}"></span>
+            </div>
+        </div>
+
+        <div style="border-top:1px solid var(--muted); padding-top:2rem;">
+            <label style="color:var(--yellow); font-size:0.75rem; text-transform:uppercase; margin-bottom:1rem; display:block;">ReviewER NOTES</label>
+            <textarea id="notes-{ID}" style="height:80px; margin-bottom:1.5rem;" placeholder="Document your independent assessment of this decision..."></textarea>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="chk1-{ID}" onchange="checkSignOff('{ID}')">
+                <label for="chk1-{ID}">I have reviewed the AI model's feature weights and found no discriminatory proxies</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="chk2-{ID}" onchange="checkSignOff('{ID}')">
+                <label for="chk2-{ID}">I have verified the decision aligns with the stated hiring criteria</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="chk3-{ID}" onchange="checkSignOff('{ID}')">
+                <label for="chk3-{ID}">I confirm no override was made under coercive pressure</label>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:2rem;">
+                <button class="btn btn-red" onclick="actionReview('{ID}', 'FLAGGED')">Flag This Decision ⚠</button>
+                <button class="btn btn-yellow" id="btn-sign-{ID}" disabled onclick="actionReview('{ID}', 'SIGNED OFF')">Sign Off ✓</button>
+            </div>
+        </div>
+    </template>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="../scripts/shared.js"></script>
+    <script>
+        let loggedInReviewer = "External Reviewer";
+
+        // Mock data mapping for rendering inner HTML template
+        const dbData = {
+            'APP-99281A': { state: 'REJECTED', cls: 'failed', hasOverride: false, name: 'Eleanor Vance', overrideLog: null },
+            'APP-99282B': { state: 'APPROVED', cls: 'approved', hasOverride: false, name: 'Julian Alvez', overrideLog: null },
+            'APP-99283C': {
+                state: 'APPROVED',
+                cls: 'approved',
+                hasOverride: true,
+                name: 'Sarah Chen',
+                overrideLog: {
+                    time: '2026-05-23T14:22:00Z',
+                    staff: 'admin',
+                    action: 'REJECTED → APPROVED',
+                    justification: 'Candidate appeal approved due to incomplete scraping of resume PDF identifying cloud architecture certs.'
+                }
+            }
+        };
+
+        // Initialize and apply overrides from sessionStorage before accordion layout rendering
+        const overridesMap = JSON.parse(sessionStorage.getItem('faiRe_overrides')) || {};
+        for (const [id, ovr] of Object.entries(overridesMap)) {
+            if (dbData[id]) {
+                const oldState = dbData[id].state;
+                dbData[id].state = ovr.status;
+                dbData[id].cls = ovr.status === 'APPROVED' ? 'approved' : 'failed';
+                dbData[id].hasOverride = true;
+                dbData[id].overrideLog = {
+                    time: ovr.time,
+                    staff: 'admin',
+                    action: `${oldState} → ${ovr.status}`,
+                    justification: ovr.justification
+                };
+            }
+        }
+
+        // Inject template engine logic into document
+        document.querySelectorAll('.expanded-content').forEach(el => {
+            const id = el.id.replace('exp-', '');
+            let htmlStr = document.getElementById('expanded-template').innerHTML;
+
+            htmlStr = htmlStr.replaceAll('{ID}', id);
+            htmlStr = htmlStr.replace('{AI_STATE_CLASS}', dbData[id].cls);
+            htmlStr = htmlStr.replace('{AI_STATE_TEXT}', dbData[id].state);
+            el.innerHTML = htmlStr;
+
+            // Configure override display logic
+            if (dbData[id].hasOverride) {
+                document.getElementById(`override-input-area-${id}`).style.display = 'none';
+                document.getElementById(`override-success-${id}`).style.display = 'block';
+
+                const logEntry = document.getElementById(`override-log-entry-${id}`);
+                const logData = dbData[id].overrideLog || {
+                    time: '2026-05-23T14:22:00Z',
+                    staff: 'admin',
+                    action: 'REJECTED → APPROVED',
+                    justification: 'Candidate appeal approved due to incomplete scraping of resume PDF identifying cloud architecture certs.'
+                };
+                document.getElementById(`log-time-${id}`).innerText = logData.time;
+                document.getElementById(`log-transition-${id}`).innerText = logData.action;
+                document.getElementById(`log-text-${id}`).innerText = logData.justification;
+                logEntry.style.display = 'block';
+
+                // Sync main table rows immediately on load
+                const expandedRow = document.getElementById(`row-${id}`);
+                if (expandedRow) {
+                    const mainRow = expandedRow.previousElementSibling;
+                    if (mainRow) {
+                        const cells = mainRow.querySelectorAll('td');
+                        if (cells.length >= 4) {
+                            // Column index 2: AI Decision badge
+                            cells[2].innerHTML = `<div class="status-badge ${dbData[id].cls}">${dbData[id].state}</div>`;
+                            // Column index 3: Override Status badge
+                            cells[3].innerHTML = `<div class="status-badge pending" style="color:var(--yellow); border-color:var(--yellow);">OVERRIDDEN</div>`;
+                        }
+                    }
+                }
+            } else {
+                const actionBox = document.getElementById(`override-actions-${id}`);
+                const state = dbData[id].state;
+                if (state === 'APPROVED') {
+                    actionBox.innerHTML = `<button class="btn btn-red" id="btn-override-action-${id}" style="width:100%;" disabled onclick="triggerOverride('${id}', 'REJECTED')">Override to REJECTED</button>`;
+                } else {
+                    actionBox.innerHTML = `<button class="btn btn-yellow" id="btn-override-action-${id}" style="width:100%;" disabled onclick="triggerOverride('${id}', 'APPROVED')">Override to APPROVED</button>`;
+                }
+            }
+        });
+
+        // Trigger animations immediately when document loads
+        document.addEventListener("DOMContentLoaded", () => {
+            if (sessionStorage.getItem('faiRe_auth') !== 'true') {
+                window.location.href = 'records.html';
+                return;
+            }
+            window.FaiRe.staggerPageIn('.stagger-in');
+        });
+
+        // Toggle table rows to active (accordion)
+        function toggleRow(id) {
+            const row = document.getElementById(`row-${id}`);
+            const content = document.getElementById(`exp-${id}`);
+
+            if (row.classList.contains('active')) {
+                gsap.to(content, { height: 0, opacity: 0, duration: 0.3, onComplete: () => {
+                    row.classList.remove('active');
+                }});
+            } else {
+                row.classList.add('active');
+                gsap.fromTo(content, { height: 0, opacity: 0 }, { height: "auto", opacity: 1, duration: 0.4, ease: "power2.out" });
+            }
+        }
+
+        function checkOverrideLen(id) {
+            const val = document.getElementById(`override-justification-${id}`).value;
+            const btn = document.getElementById(`btn-override-action-${id}`);
+            if (btn) {
+                btn.disabled = val.trim().length < 20;
+            }
+        }
+
+        function triggerOverride(id, newStatus) {
+            const btn = document.getElementById(`btn-override-action-${id}`);
+            const currentData = dbData[id];
+            const oldStatus = currentData.state;
+
+            btn.innerText = "Processing Override...";
+            btn.disabled = true;
+
+            setTimeout(() => {
+                const statusBadgeEls = document.querySelectorAll(`#exp-${id} .status-badge`);
+                const statusEl = statusBadgeEls[0];
+
+                if (statusEl) {
+                    gsap.to(statusEl, { scale: 0, duration: 0.2, onComplete: () => {
+                        statusEl.innerText = newStatus;
+                        statusEl.className = newStatus === 'APPROVED' ? 'status-badge approved' : 'status-badge failed';
+                        gsap.to(statusEl, { scale: 1, duration: 0.5, ease: "back.out(1.7)" });
+                    }});
+                }
+
+                const justText = document.getElementById(`override-justification-${id}`).value.trim();
+                const logPreview = justText.length > 60 ? justText.substring(0, 60) + '...' : justText;
+                const logTime = new Date().toISOString();
+
+                document.getElementById(`log-time-${id}`).innerText = logTime;
+                document.getElementById(`log-transition-${id}`).innerText = `${oldStatus} → ${newStatus}`;
+                document.getElementById(`log-text-${id}`).innerText = logPreview;
+
+                document.getElementById(`override-input-area-${id}`).style.display = 'none';
+                document.getElementById(`override-success-${id}`).style.display = 'block';
+
+                const logEntry = document.getElementById(`override-log-entry-${id}`);
+                logEntry.style.display = 'block';
+                gsap.fromTo(logEntry, {opacity: 0, x: -20}, {opacity: 1, x: 0, duration: 0.5, delay: 0.3});
+
+                // Update table row Override Status badge and AI Decision badge in realtime
+                const expandedRow = document.getElementById(`row-${id}`);
+                if (expandedRow) {
+                    const mainRow = expandedRow.previousElementSibling;
+                    if (mainRow) {
+                        const cells = mainRow.querySelectorAll('td');
+                        if (cells.length >= 4) {
+                            // Update AI Decision badge (column index 2) with GSAP pop scale
+                            const oldBadge = cells[2].querySelector('.status-badge');
+                            if (oldBadge) {
+                                gsap.to(oldBadge, { scale: 0, duration: 0.2, onComplete: () => {
+                                    oldBadge.innerText = newStatus;
+                                    oldBadge.className = newStatus === 'APPROVED' ? 'status-badge approved' : 'status-badge failed';
+                                    gsap.to(oldBadge, { scale: 1, duration: 0.5, ease: "back.out(1.7)" });
+                                }});
+                            } else {
+                                cells[2].innerHTML = `<div class="status-badge ${newStatus === 'APPROVED' ? 'approved' : 'failed'}">${newStatus}</div>`;
+                            }
+
+                            // Update Override Status badge (column index 3)
+                            cells[3].innerHTML = `<div class="status-badge pending" style="color:var(--yellow); border-color:var(--yellow);">OVERRIDDEN</div>`;
+                            const overrideBadge = cells[3].querySelector('.status-badge');
+                            if (overrideBadge) {
+                                gsap.fromTo(overrideBadge,
+                                    { scale: 0, opacity: 0 },
+                                    { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" }
+                                );
+                            }
+                        }
+                    }
+                }
+
+                // Update state reference
+                currentData.state = newStatus;
+                currentData.cls = newStatus === 'APPROVED' ? 'approved' : 'failed';
+                currentData.hasOverride = true;
+                currentData.overrideLog = {
+                    time: logTime,
+                    staff: 'admin',
+                    action: `${oldStatus} → ${newStatus}`,
+                    justification: justText
+                };
+
+                // Store state persistence in sessionStorage
+                const overridesStore = JSON.parse(sessionStorage.getItem('faiRe_overrides')) || {};
+                overridesStore[id] = {
+                    status: newStatus,
+                    time: logTime,
+                    justification: justText
+                };
+                sessionStorage.setItem('faiRe_overrides', JSON.stringify(overridesStore));
+
+                // Audit trace prepending
+                const list = document.getElementById('audit-list');
+                const entry = document.createElement('div');
+                entry.className = "log-entry";
+                entry.style.borderLeft = "2px solid var(--yellow)";
+                entry.style.paddingLeft = "1rem";
+                entry.style.opacity = 0;
+                entry.style.transform = "translateX(-20px)";
+
+                entry.innerHTML = `
+                    <span style="color:var(--white)">TIME:</span> ${logTime}<br>
+                    <span style="color:var(--white)">ACT:</span> OVERRIDE_LOGGED<br>
+                    <span style="color:var(--white)">TARGET:</span> ${id} (${currentData.name})<br>
+                    <span style="color:var(--white)">USER:</span> senior_staff_override<br>
+                    <span style="color:var(--white)">NOTE:</span> ${logPreview}
+                `;
+
+                list.prepend(entry);
+                gsap.to(entry, {opacity: 1, x: 0, duration: 0.5});
+
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }, 1000);
+        }
+
+        function checkSignOff(id) {
+            const b = document.getElementById(`btn-sign-${id}`);
+            const c1 = document.getElementById(`chk1-${id}`).checked;
+            const c2 = document.getElementById(`chk2-${id}`).checked;
+            const c3 = document.getElementById(`chk3-${id}`).checked;
+            b.disabled = !(c1 && c2 && c3);
+        }
+
+        function actionReview(id, result) {
+            const badge = document.getElementById(`rev-badge-${id}`);
+            const notes = document.getElementById(`notes-${id}`).value.trim();
+            const noteText = notes.length > 0 ? (notes.length > 80 ? notes.substring(0, 80) + '...' : notes) : "No manual notes appended.";
+
+            // GSAP badge pop
+            badge.innerText = result;
+            if(result === 'SIGNED OFF') {
+                badge.className = "status-badge approved";
+            } else {
+                badge.className = "status-badge failed";
+            }
+            window.FaiRe.popBadge(`#rev-badge-${id}`);
+
+            // Prepend Audit Trail Log
+            const list = document.getElementById('audit-list');
+            const entry = document.createElement('div');
+            entry.className = "log-entry";
+            entry.style.borderLeft = result === 'SIGNED OFF' ? "2px solid #00FF7F" : "2px solid var(--red)";
+            entry.style.paddingLeft = "1rem";
+            entry.style.opacity = 0;
+            entry.style.transform = "translateX(-20px)";
+
+            entry.innerHTML = `
+                <span style="color:var(--white)">TIME:</span> ${new Date().toISOString()}<br>
+                <span style="color:var(--white)">ACT:</span> ${result.replace(" ","_")}<br>
+                <span style="color:var(--white)">TARGET:</span> ${id} (${dbData[id].name})<br>
+                <span style="color:var(--white)">USER:</span> ${loggedInReviewer}<br>
+                <span style="color:var(--white)">NOTE:</span> ${noteText}
+            `;
+
+            list.prepend(entry);
+            gsap.to(entry, {opacity: 1, x: 0, duration: 0.5});
+
+            // Close Accordion automatically after action
+            toggleRow(id);
+        }
+    </script>
