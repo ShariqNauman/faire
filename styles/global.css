@@ -1,0 +1,343 @@
+:root {
+  --yellow: #FFE70D;
+  --red: #FD3333;
+  --black: #0A0A0A;
+  --white: #F5F5F5;
+  --gray: #1A1A1A;
+  --muted: #888888;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background-color: var(--black);
+  color: var(--white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Syne', sans-serif;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* UI Shared Components */
+.nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 3rem;
+  border-bottom: 1px solid var(--muted);
+  width: 100%;
+}
+
+.nav-logo a {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: var(--yellow);
+  text-decoration: none;
+  letter-spacing: -0.05em;
+}
+
+.nav-breadcrumb {
+  font-size: 0.85rem;
+  color: var(--white);
+  letter-spacing: 0.05em;
+}
+
+.nav-role {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+/* Cards & Panels */
+.card-grid {
+  display: flex;
+  gap: 2rem;
+  padding: 4rem;
+  justify-content: center;
+}
+
+.role-card {
+  width: 320px;
+  height: 400px;
+  background-color: var(--gray);
+  border-left: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 3rem 2rem;
+  text-decoration: none;
+  color: var(--white);
+  transition: background-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), border-left-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.role-card:hover {
+  background-color: var(--muted);
+  border-left-color: var(--yellow);
+  transform: translateY(-10px);
+}
+
+.role-card i {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  color: var(--muted);
+  transition: color 0.3s ease;
+}
+
+.role-card:hover i {
+  color: var(--yellow);
+}
+
+.role-card h2 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.role-card p {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-left: 2px solid;
+  background-color: var(--gray);
+}
+.status-badge.approved { border-left-color: #00FF7F; color: #00FF7F; }
+.status-badge.failed { border-left-color: var(--red); color: var(--red); }
+.status-badge.pending { border-left-color: var(--yellow); color: var(--yellow); }
+
+/* Violation Card */
+.violation-card {
+  background-color: var(--gray);
+  border-left: 3px solid var(--red);
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.85rem;
+}
+
+/* Step Panel (Accordion) */
+.step-panel-container {
+  display: flex;
+  width: 100%;
+  height: 600px;
+  max-width: 1200px;
+  margin: 2rem auto;
+  gap: 2px;
+}
+
+.step-panel {
+  background-color: var(--gray);
+  flex: 0 0 60px;
+  overflow: hidden;
+  position: relative;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+}
+
+.step-panel.active {
+  flex: 1;
+  background-color: var(--black);
+  border-left-color: var(--yellow);
+  cursor: default;
+}
+
+.step-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 2rem;
+  border-right: 1px solid var(--muted);
+  background-color: var(--gray);
+  z-index: 2;
+}
+
+.step-number {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.step-panel.active .step-number {
+  color: var(--yellow);
+}
+
+.step-title-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  margin-top: 2rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--white);
+  opacity: 0.5;
+}
+
+.step-content {
+  position: absolute;
+  left: 60px;
+  top: 0;
+  width: calc(100% - 60px);
+  height: 100%;
+  padding: 3rem;
+  opacity: 0;
+  pointer-events: none;
+  overflow-y: auto;
+}
+
+.step-panel.active .step-content {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Progress & Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  border: 1px solid;
+}
+
+.btn-yellow {
+  background-color: var(--yellow);
+  color: var(--black);
+  border-color: var(--yellow);
+}
+
+.btn-yellow:hover {
+  background-color: transparent;
+  color: var(--yellow);
+}
+
+.btn-red {
+  background-color: var(--red);
+  color: var(--white);
+  border-color: var(--red);
+}
+
+.btn-red:hover {
+  background-color: transparent;
+  color: var(--red);
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--white);
+  border-color: var(--muted);
+}
+
+.btn-outline:hover {
+  border-color: var(--white);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.progress-track {
+  width: 100%;
+  height: 4px;
+  background-color: var(--muted);
+  margin-top: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: var(--yellow);
+  width: 0%;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(10, 10, 10, 0.9);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background-color: var(--gray);
+  width: 600px;
+  max-width: 90vw;
+  padding: 3rem;
+  border-top: 4px solid var(--yellow);
+  transform: scale(0.9);
+}
+
+.modal-overlay.active .modal-content {
+  transform: scale(1);
+}
+
+/* Utility */
+.code-block {
+  font-family: 'IBM Plex Mono', monospace;
+  background-color: #050505;
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: #888;
+  border-left: 2px solid var(--muted);
+}

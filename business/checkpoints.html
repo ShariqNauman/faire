@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business | Compliance Checkpoints - FaiRe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/global.css">
+    <style>
+        .layout { flex: 1; padding: 4rem; display: flex; gap: 2rem; }
+        .stage-card { flex: 1; background: var(--gray); padding: 2rem; position: relative; border-left: 2px solid var(--muted); transition: all 0.3s;}
+        .stage-card.active { border-left-color: var(--yellow); }
+        .stage-card.locked { opacity: 0.5; pointer-events: none; }
+
+        .stage-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
+        .stage-header h2 { font-size: 1.5rem; font-family: 'Syne'; margin-top: 0.5rem;}
+
+        .arc-container { display: flex; justify-content: space-around; margin: 2rem 0; }
+        .arc { width: 80px; height: 80px; position: relative; }
+        .arc svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+        .arc circle { fill: none; stroke-width: 8; stroke-linecap: round; }
+        .arc .bg { stroke: var(--muted); }
+        .arc .fill { stroke: var(--yellow); stroke-dasharray: 251; stroke-dashoffset: 251; transition: stroke-dashoffset 1.5s ease-out; }
+        .arc-label { position: absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-family: 'IBM Plex Mono'; font-size: 0.85rem; font-weight: 600;}
+        .arc-title { text-align: center; font-size: 0.6rem; text-transform: uppercase; margin-top: 0.5rem; color: var(--muted); letter-spacing: 0.1em;}
+
+        textarea, input[type="text"] { background: var(--black); border: 1px solid var(--muted); color: var(--white); padding: 1rem; width: 100%; font-family: 'IBM Plex Mono'; outline: none;}
+
+        .arrow-connector { position: absolute; right: -1.5rem; top: 50%; transform: translateY(-50%); z-index: 10; font-size: 2rem; color: var(--muted); }
+    </style>
+</head>
+<body>
+
+    <nav class="nav-bar stagger-in">
+        <div class="nav-logo"><a href="../index.html">FaiRe</a></div>
+        <div class="nav-breadcrumb">BUSINESS / 3-STAGE COMPLIANCE</div>
+        <div class="nav-role" style="border-color: #00FF7F; color: #00FF7F;">STAFF ACCESS</div>
+    </nav>
+
+    <main class="layout stagger-in">
+        <!-- Stage 1 -->
+        <div class="stage-card active" id="stg-1">
+            <div class="stage-header">
+                <div>
+                    <span style="color:var(--muted); font-size:0.75rem;">STAGE 1</span>
+                    <h2>Pre-Dev Legal Check</h2>
+                </div>
+                <div class="status-badge pending" id="bdg-1">PENDING</div>
+            </div>
+
+            <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1rem;">Input proposed system scope for legal NLP analysis.</p>
+            <textarea id="scope-tx" style="height:100px; margin-bottom:1rem;" placeholder="Paste JSON feature list or requirements..."></textarea>
+            <button class="btn btn-yellow" style="width:100%" onclick="runStage1()">Run Legal Scan</button>
+
+            <div id="stg1-res" style="margin-top:2rem; display:none;">
+                <div class="violation-card" style="border-color:#00FF7F">
+                    <i data-lucide="check" style="color:#00FF7F"></i>
+                    <div><strong style="color:var(--white);">Cleared:</strong> No direct violations of ADEA, Title VII, or ADA detected.</div>
+                </div>
+            </div>
+
+            <div class="arrow-connector">→</div>
+        </div>
+
+        <!-- Stage 2 -->
+        <div class="stage-card locked" id="stg-2">
+            <div class="stage-header">
+                <div>
+                    <span style="color:var(--muted); font-size:0.75rem;">STAGE 2</span>
+                    <h2>Pre-Testing Ethical</h2>
+                </div>
+                <div class="status-badge pending" id="bdg-2">WAITING</div>
+            </div>
+
+            <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1rem;">Continuous monitoring of developer pipelines prior to deployment gate.</p>
+
+            <div class="arc-container">
+                <div>
+                    <div class="arc">
+                        <svg viewBox="0 0 100 100">
+                            <circle class="bg" cx="50" cy="50" r="40"></circle>
+                            <circle class="fill" id="arc-1" cx="50" cy="50" r="40"></circle>
+                        </svg>
+                        <div class="arc-label" id="arc-lbl-1">0%</div>
+                    </div>
+                    <div class="arc-title">Fairness</div>
+                </div>
+                <div>
+                    <div class="arc">
+                        <svg viewBox="0 0 100 100">
+                            <circle class="bg" cx="50" cy="50" r="40"></circle>
+                            <circle class="fill" id="arc-2" cx="50" cy="50" r="40"></circle>
+                        </svg>
+                        <div class="arc-label" id="arc-lbl-2">0%</div>
+                    </div>
+                    <div class="arc-title">Transparency</div>
+                </div>
+            </div>
+
+            <button class="btn btn-yellow" style="width:100%" id="btn-stg2" onclick="runStage2()">Poll Telemetry</button>
+
+            <div class="arrow-connector">→</div>
+        </div>
+
+        <!-- Stage 3 -->
+        <div class="stage-card locked" id="stg-3">
+            <div class="stage-header">
+                <div>
+                    <span style="color:var(--muted); font-size:0.75rem;">STAGE 3</span>
+                    <h2>Deployment Audit</h2>
+                </div>
+                <div class="status-badge pending" id="bdg-3">WAITING</div>
+            </div>
+
+            <div style="background:var(--black); padding:1rem; border:1px solid var(--muted); margin-bottom:2rem;">
+                <p style="font-size:0.85rem; margin-bottom:0.5rem;"><i data-lucide="check-circle-2" id="chk-1" style="color:var(--muted); width:14px; margin-right:0.5rem;"></i> Stage 1 Cleared</p>
+                <p style="font-size:0.85rem;"><i data-lucide="check-circle-2" id="chk-2" style="color:var(--muted); width:14px; margin-right:0.5rem;"></i> Stage 2 Thresholds Met</p>
+            </div>
+
+            <label style="color:var(--muted); font-size:0.75rem; text-transform:uppercase;">Reviewer Key</label>
+            <input type="text" style="margin-bottom:1rem;" placeholder="Legal Counsel ID">
+
+            <div style="display:flex; gap:1rem;">
+                <button class="btn btn-red" style="flex:1;">Reject</button>
+                <button class="btn btn-yellow" style="flex:1;" onclick="finalize()">Sign off</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="../scripts/shared.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => window.FaiRe.staggerPageIn('.stagger-in'));
+
+        function runStage1() {
+            if(!document.getElementById('scope-tx').value) return;
+
+            gsap.to('#stg1-res', {display: 'block', opacity: 1, duration: 0.5});
+            const bdg = document.getElementById('bdg-1');
+            bdg.className = "status-badge approved"; bdg.innerText = "APPROVED";
+            window.FaiRe.popBadge('#bdg-1');
+
+            setTimeout(() => {
+                document.getElementById('stg-2').classList.remove('locked');
+                document.getElementById('stg-2').classList.add('active');
+                document.getElementById('chk-1').style.color = "#00FF7F";
+            }, 500);
+        }
+
+        function runStage2() {
+            document.getElementById('btn-stg2').innerText = "VETTED";
+            document.getElementById('btn-stg2').disabled = true;
+
+            const fTarget = 96; const tTarget = 88;
+
+            gsap.to('#arc-1', { strokeDashoffset: 251 - (251 * fTarget / 100), duration: 2, ease: "power2.out" });
+            gsap.to('#arc-2', { strokeDashoffset: 251 - (251 * tTarget / 100), duration: 2.5, ease: "power2.out" });
+
+            let obj = { f: 0, t: 0 };
+            gsap.to(obj, { f: fTarget, t: tTarget, duration: 2.5, onUpdate: function() {
+                document.getElementById('arc-lbl-1').innerText = Math.floor(obj.f) + "%";
+                document.getElementById('arc-lbl-2').innerText = Math.floor(obj.t) + "%";
+            }, onComplete: () => {
+                const bdg = document.getElementById('bdg-2');
+                bdg.className = "status-badge approved"; bdg.innerText = "APPROVED";
+                window.FaiRe.popBadge('#bdg-2');
+
+                setTimeout(() => {
+                    document.getElementById('stg-3').classList.remove('locked');
+                    document.getElementById('stg-3').classList.add('active');
+                    document.getElementById('chk-2').style.color = "#00FF7F";
+                }, 500);
+            }});
+        }
+
+        function finalize() {
+            const bdg = document.getElementById('bdg-3');
+            bdg.className = "status-badge approved"; bdg.innerText = "DEPLOYED";
+            window.FaiRe.popBadge('#bdg-3');
+
+            setTimeout(() => {
+                const overlay = document.createElement('div');
+                overlay.style = "position:fixed;top:0;left:0;width:100vw;height:100vh;background:var(--yellow);z-index:9999;display:flex;align-items:center;justify-content:center;";
+                overlay.innerHTML = "<h1 style='color:var(--black);font-family:Syne;font-size:4rem;'>🚀 DEPLOYMENT AUTHORIZED</h1>";
+                document.body.appendChild(overlay);
+                gsap.from(overlay, {opacity: 0, duration: 0.2});
+
+                setTimeout(() => { window.location.href="../index.html"; }, 2000);
+            }, 500);
+        }
+    </script>
+</body>
+</html>

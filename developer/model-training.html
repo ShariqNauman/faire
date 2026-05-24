@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer | Model Training - FaiRe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/global.css">
+    <style>
+        .layout { flex: 1; display: flex; flex-direction: column; }
+        .chart-container { height: 300px; width: 100%; margin-top: 2rem; }
+        .terminal-log { background: #050505; border-left: 2px solid var(--muted); padding: 1rem; height: 150px; overflow-y: auto; font-size: 0.75rem; color: #888; margin-top: 1rem;}
+
+        /* Stats grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 2rem; }
+        .stat-card { background: var(--gray); padding: 2rem; text-align: center; border-bottom: 2px solid var(--yellow); }
+        .stat-value { font-family: 'Syne', sans-serif; font-size: 3rem; font-weight: 700; color: var(--white); }
+        .stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.5rem; }
+
+        select { background: var(--black); color: var(--white); border: 1px solid var(--muted); padding: 1rem; font-family: 'IBM Plex Mono'; width: 100%; margin-bottom: 2rem; outline: none; }
+    </style>
+</head>
+<body>
+
+    <nav class="nav-bar stagger-in">
+        <div class="nav-logo"><a href="../index.html">FaiRe</a></div>
+        <div class="nav-breadcrumb">DEVELOPER / MODEL TRAINING & VALIDATION</div>
+        <div class="nav-role" style="border-color: var(--yellow); color: var(--yellow);">DEVELOPER</div>
+    </nav>
+
+    <main class="layout stagger-in">
+        <div class="step-panel-container">
+
+            <!-- Step 1 -->
+            <div class="step-panel step-1 active" onclick="window.FaiRe.activateStep('.step-panel', 0)">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div class="step-title-vertical">Train Model</div>
+                </div>
+                <div class="step-content">
+                    <h2 style="font-size:2rem; margin-bottom:2rem;">Configure Training</h2>
+                    <label style="color:var(--muted); font-size:0.85rem; display:block; margin-bottom:0.5rem;">Algorithm Selector</label>
+                    <select>
+                        <option>RandomSearchCV (Ensemble)</option>
+                        <option>Optuna Hyperparameter Tuning</option>
+                        <option>GridSearchCV (XGBoost)</option>
+                    </select>
+
+                    <div style="display:flex; align-items:center; gap:1rem; margin-bottom:2rem;">
+                        <input type="checkbox" checked id="use-audit"> <label for="use-audit" style="font-size:0.85rem;">Use audited dataset from pipeline 1.1</label>
+                    </div>
+
+                    <button class="btn btn-yellow" onclick="trainModel()">Execute Training</button>
+
+                    <div class="terminal-log" id="train-log" style="display:none;"></div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step-panel step-2" onclick="window.FaiRe.activateStep('.step-panel', 1)">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-title-vertical">Parity Test</div>
+                </div>
+                <div class="step-content">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h2 style="font-size:2rem;">Demographic Parity Check</h2>
+                        <div id="gap-badge" class="status-badge failed" style="opacity:0; transform:scale(0);">GAP > 5% DETECTED</div>
+                    </div>
+
+                    <div class="chart-container"><canvas id="parityChart"></canvas></div>
+
+                    <div class="violation-card" id="parity-warning" style="display:none; margin-top:2rem;">
+                        <i data-lucide="x-octagon" style="color:var(--red)"></i>
+                        <div><strong style="color:var(--white);">Rejection Rate Gap Exceeds 5% Regulatory Threshold.</strong><br><span style="color:var(--muted);">Group B rejection rate is 12% higher than baseline. Retraining loop required.</span></div>
+                    </div>
+
+                    <div style="display:flex; gap:1rem; margin-top:2rem;">
+                        <button class="btn btn-outline" id="retrain-btn" onclick="retrainModel()">Auto-Retrain (Loss Penalty)</button>
+                        <button class="btn btn-yellow" id="btn-step3" disabled onclick="nextStep(2)">Proceed to Validation</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-panel step-3" onclick="window.FaiRe.activateStep('.step-panel', 2)">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div class="step-title-vertical">Test Metrics</div>
+                </div>
+                <div class="step-content">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                        <h2 style="font-size:2rem;">Validation Results</h2>
+                        <button class="btn btn-yellow" onclick="runValidation()">Generate Metrics</button>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card"><div class="stat-value" id="val-acc">0%</div><div class="stat-label">Accuracy</div></div>
+                        <div class="stat-card"><div class="stat-value" id="val-pre">0%</div><div class="stat-label">Precision</div></div>
+                        <div class="stat-card"><div class="stat-value" id="val-rec">0%</div><div class="stat-label">Recall</div></div>
+                        <div class="stat-card"><div class="stat-value" id="val-fai">0%</div><div class="stat-label">Fairness Score</div></div>
+                    </div>
+
+                    <button class="btn btn-outline" style="margin-top:4rem;" onclick="nextStep(3)">Review Audit Summary →</button>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="step-panel step-4" onclick="window.FaiRe.activateStep('.step-panel', 3)">
+                <div class="step-header">
+                    <div class="step-number">4</div>
+                    <div class="step-title-vertical">Audit Summary</div>
+                </div>
+                <div class="step-content">
+                    <h2 style="font-size:2rem; margin-bottom:2rem;">Model Signature</h2>
+
+                    <div style="background:var(--black); border:1px solid var(--muted); padding:3rem; font-family:'IBM Plex Mono'; font-size:0.85rem;">
+                        <p><span style="color:var(--muted)">Model ID:</span> <span style="color:var(--yellow)">FAI-883-XGB</span></p>
+                        <p><span style="color:var(--muted)">Algorithm:</span> RandomSearchCV (Ensemble)</p>
+                        <p><span style="color:var(--muted)">Training Data Hash:</span> 0x8f7a90b...</p>
+                        <p><span style="color:var(--muted)">Parity Status:</span> PASS (< 5% max deviation)</p>
+                        <p><span style="color:var(--muted)">Timestamp:</span> <span id="time-stamp"></span></p>
+                    </div>
+
+                    <a href="bias-check.html" class="btn btn-yellow" style="margin-top:2rem; text-decoration:none;">Send to AI Bias Check gate →</a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script src="../scripts/shared.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            window.FaiRe.staggerPageIn('.stagger-in, .step-panel');
+            document.getElementById('time-stamp').innerText = new Date().toISOString();
+        });
+
+        function nextStep(i) {
+            window.FaiRe.activateStep('.step-panel', i);
+        }
+
+        function trainModel() {
+            const log = document.getElementById('train-log');
+            log.style.display = 'block';
+            log.innerHTML = '';
+
+            const lines = [
+                "[0.00s] Initializing tensor cores...",
+                "[0.12s] Loading audited dataset...",
+                "[1.45s] Epoch 1/50 - loss: 0.892",
+                "[2.11s] Epoch 10/50 - loss: 0.512",
+                "[4.33s] Epoch 50/50 - loss: 0.201 - Converged.",
+                "[SYS] Training complete. Routing to Parity Test."
+            ];
+
+            let i = 0;
+            const int = setInterval(() => {
+                if(i < lines.length) {
+                    log.innerHTML += lines[i] + "<br>";
+                    log.scrollTop = log.scrollHeight;
+                    i++;
+                } else {
+                    clearInterval(int);
+                    setTimeout(() => {
+                        nextStep(1);
+                        renderParityChartFail();
+                    }, 800);
+                }
+            }, 400);
+        }
+
+        let pChart;
+        function renderParityChartFail() {
+            const ctx = document.getElementById('parityChart').getContext('2d');
+            if(pChart) pChart.destroy();
+            pChart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: ['Baseline', 'Group A', 'Group B', 'Group C'], datasets: [{ label: 'Rejection Rate (%)', data: [20, 22, 32, 19], backgroundColor: ['#1a1a1a','#1a1a1a','#FD3333','#1a1a1a'], borderWidth: 0}] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend:{display:false} }, scales: { y:{beginAtZero:true, max: 50, grid:{color:'#2e2e2e'}}, x:{grid:{display:false}} } }
+            });
+            window.FaiRe.popBadge('#gap-badge');
+            document.getElementById('parity-warning').style.display = 'flex';
+        }
+
+        function retrainModel() {
+            const btn = document.getElementById('retrain-btn');
+            btn.innerText = "Retraining... (Attempt 2)";
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.innerText = "Auto-Retrain (Loss Penalty)";
+                btn.style.display = 'none';
+
+                pChart.data.datasets[0].data = [20, 21, 23, 19];
+                pChart.data.datasets[0].backgroundColor = ['#1a1a1a','#1a1a1a','#00FF7F','#1a1a1a'];
+                pChart.update();
+
+                const badge = document.getElementById('gap-badge');
+                badge.className = "status-badge approved";
+                badge.innerText = "PARITY < 5%";
+
+                document.getElementById('parity-warning').style.display = 'none';
+                document.getElementById('btn-step3').disabled = false;
+            }, 1500);
+        }
+
+        function runValidation() {
+            const targets = { 'val-acc': 94, 'val-pre': 89, 'val-rec': 92, 'val-fai': 98 };
+            for(let id in targets) {
+                let obj = { val: 0 };
+                gsap.to(obj, { val: targets[id], duration: 2, ease: "power2.out", onUpdate: function() {
+                    document.getElementById(id).innerText = Math.floor(this.targets()[0].val) + "%";
+                }});
+            }
+        }
+    </script>
+</body>
+</html>
+EOF

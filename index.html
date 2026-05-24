@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FaiRe | Ethical AI Hiring Infrastructure</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="./styles/global.css">
+    
+    <style>
+        .home-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 4rem;
+        }
+        .hero-title {
+            font-size: 8rem;
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 1rem;
+            line-height: 1;
+            position: relative;
+        }
+        .hero-title span {
+            color: var(--yellow);
+        }
+        .hero-subtitle {
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--muted);
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            margin-bottom: 4rem;
+        }
+    </style>
+</head>
+<body>
+
+    <main class="home-container">
+        <h1 class="hero-title stagger-in">Fai<span>Re</span></h1>
+        <p class="hero-subtitle stagger-in">Ethical AI Hiring Infrastructure</p>
+        
+        <div class="card-grid">
+            <a href="applicant/feedback.html" class="role-card stagger-in">
+                <i data-lucide="user" width="32" height="32"></i>
+                <div>
+                    <h2>Applicant</h2>
+                    <p>View AI feedback & screening decisions</p>
+                </div>
+            </a>
+            
+            <a href="business/records.html" class="role-card stagger-in">
+                <i data-lucide="building-2" width="32" height="32"></i>
+                <div>
+                    <h2>Business</h2>
+                    <p>Review hiring records & compliance checkpoints</p>
+                </div>
+            </a>
+            
+            <a href="developer/data-audit.html" class="role-card stagger-in">
+                <i data-lucide="code-2" width="32" height="32"></i>
+                <div>
+                    <h2>Developer</h2>
+                    <p>Audit data, train models & check bias</p>
+                </div>
+            </a>
+        </div>
+    </main>
+
+    <!-- Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="./scripts/shared.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Trigger load animation utilizing the shared script function
+            window.FaiRe.staggerPageIn('.stagger-in');
+        });
+    </script>
+</body>
+</html>

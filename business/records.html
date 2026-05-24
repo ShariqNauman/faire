@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business | Records - FaiRe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/global.css">
+    <style>
+        .layout { flex: 1; display: flex; flex-direction: column; padding: 4rem;}
+        #login-gate { position: fixed; top:0; left:0; width:100vw; height:100vh; background:var(--black); z-index:100; display:flex; align-items:center; justify-content:center; }
+        .login-card { background: var(--gray); padding: 4rem; width: 400px; }
+        .login-card input { width: 100%; background: var(--black); border: 1px solid var(--muted); color: var(--white); padding: 1rem; font-family: 'IBM Plex Mono'; margin-bottom: 1.5rem; outline: none; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 2rem; font-size: 0.85rem; }
+        .data-table th, .data-table td { border-bottom: 1px solid var(--muted); padding: 1.5rem 1rem; text-align: left; }
+        .data-table th { color: var(--muted); font-family: 'Syne', sans-serif; text-transform: uppercase; cursor: pointer;}
+        .data-table th:hover { color: var(--yellow); }
+        .data-table tbody tr { cursor: pointer; transition: background 0.2s; }
+        .data-table tbody tr:hover { background: var(--muted); }
+        .search-bar { width: 100%; max-width: 400px; background: transparent; border: none; border-bottom: 2px solid var(--muted); color: var(--white); padding: 1rem 0; font-family: 'Syne'; font-size: 1.5rem; outline: none; margin-bottom: 2rem;}
+        .search-bar:focus { border-bottom-color: var(--yellow); }
+    </style>
+</head>
+<body>
+
+    <!-- Login Gate Simulation -->
+    <div id="login-gate">
+        <div class="login-card" id="lc">
+            <h2 style="font-size:2rem; margin-bottom:0.5rem; font-family:'Syne'">Records Access</h2>
+            <p style="color:var(--muted); font-size:0.75rem; margin-bottom:2rem; text-transform:uppercase;">Staff ID & Password Required. (Use admin/admin)</p>
+            <input type="text" id="sid" placeholder="STAFF IDENTIFIER">
+            <input type="password" id="pwd" placeholder="PASSWORD">
+            <button class="btn btn-yellow" style="width:100%" onclick="attemptLogin()">Authorize</button>
+            <p id="err-login" style="color:var(--red); font-size:0.75rem; display:none; margin-top:1rem; text-align:center;">Unauthorised Credentials.</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content" style="display:none; height:100vh; flex-direction:column;">
+        <nav class="nav-bar stagger-in">
+            <div class="nav-logo"><a href="../index.html">FaiRe</a></div>
+            <div class="nav-breadcrumb">BUSINESS / AI DECISION RECORDS</div>
+            <div class="nav-role" style="border-color: #00FF7F; color: #00FF7F;">STAFF ACCESS</div>
+        </nav>
+
+        <main class="layout stagger-in">
+            <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                <input type="text" class="search-bar" placeholder="Search applicant name or ID...">
+                <div style="font-size:0.75rem; color:var(--muted); text-align:right;">
+                    <i data-lucide="lock" style="height:14px;"></i> Records are append-only. Immutable ledger.
+                </div>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr><th>App ID</th><th>Year</th><th>Candidate Name</th><th>Model Sig</th><th>Decision</th></tr>
+                </thead>
+                <tbody>
+                    <tr onclick="openRecordModal(`APP-99281A`, `Eleanor Vance`, `REJECTED`, `Candidate rejected. Did not meet minimum infrastructure tenure (measured = 0 yrs, required = 5 yrs).`)">
+                        <td>APP-99281A</td><td>2026</td><td>Eleanor Vance</td><td>FAI-883-XGB</td>
+                        <td><div class="status-badge failed">REJECTED</div></td>
+                    </tr>
+                    <tr onclick="openRecordModal(`APP-99282B`, `Julian Alvez`, `APPROVED`, `Candidate approved. Exceeded all minimum requirements and scored highly on technical stack match.`)">
+                        <td>APP-99282B</td><td>2026</td><td>Julian Alvez</td><td>FAI-883-XGB</td>
+                        <td><div class="status-badge approved">APPROVED</div></td>
+                    </tr>
+                    <tr onclick="openRecordModal(`APP-99283C`, `Sarah Chen`, `APPROVED`, `Candidate approved. Strong certification hash match and adequate experience years.`)">
+                        <td>APP-99283C</td><td>2026</td><td>Sarah Chen</td><td>FAI-883-XGB</td>
+                        <td><div class="status-badge approved">APPROVED</div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="rec-modal">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                <h2 style="font-size:2rem; font-family:'Syne'" id="modal-name">Eleanor Vance</h2>
+                <div class="status-badge failed" id="modal-status">REJECTED</div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:2rem; font-size:0.85rem; margin-bottom:2rem;">
+                <div>
+                    <label style="color:var(--muted); text-transform:uppercase; font-size:0.75rem;">App ID</label>
+                    <p style="margin-bottom:1rem;" id="modal-id">APP-99281A</p>
+                    <label style="color:var(--muted); text-transform:uppercase; font-size:0.75rem;">Model Params Used</label>
+                    <p>experience_years, cert_hash, tech_stack_match</p>
+                </div>
+                <div>
+                    <label style="color:var(--muted); text-transform:uppercase; font-size:0.75rem;">Record Hash (Tamper-Evidence)</label>
+                    <p style="color:var(--yellow); font-family:'IBM Plex Mono'; margin-bottom:1rem;">0x4892fb...91a2</p>
+                    <label style="color:var(--muted); text-transform:uppercase; font-size:0.75rem;">Feature Weights</label>
+                    <p>exp: 0.6, cert: 0.1, stack: 0.3</p>
+                </div>
+            </div>
+
+            <div class="violation-card">
+                <i data-lucide="info"></i>
+                <div style="flex:1;">
+                    <strong style="color:var(--white);">Automated Justification</strong>
+                    <p style="color:var(--muted); margin-top:0.25rem;" id="modal-reason">Candidate rejected. Did not meet minimum infrastructure tenure (measured = 0 yrs, required = 5 yrs).</p>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:2rem;">
+                <button class="btn btn-outline" onclick="window.FaiRe.toggleModal('rec-modal', false)">Close File</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="../scripts/shared.js"></script>
+    <script>
+        function attemptLogin() {
+            const sid = document.getElementById('sid').value;
+            const pwd = document.getElementById('pwd').value;
+
+            if(sid === 'admin' && pwd === 'admin') {
+                gsap.to('#login-gate', {opacity: 0, scale: 1.1, duration: 0.5, onComplete: () => {
+                    document.getElementById('login-gate').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'flex';
+                    window.FaiRe.staggerPageIn('.stagger-in');
+                }});
+            } else {
+                document.getElementById('err-login').style.display = 'block';
+                gsap.fromTo('#lc', {x: -10}, {x: 10, duration: 0.1, yoyo: true, repeat: 3, onComplete: () => gsap.set('#lc', {x: 0})});
+            }
+        }
+
+        function openRecordModal(id, name, status, reason) {
+            document.getElementById('modal-name').innerText = name;
+            document.getElementById('modal-id').innerText = id;
+
+            const statusEl = document.getElementById('modal-status');
+            statusEl.innerText = status;
+            if (status === 'APPROVED') {
+                statusEl.className = 'status-badge approved';
+            } else {
+                statusEl.className = 'status-badge failed';
+            }
+
+            document.getElementById('modal-reason').innerText = reason;
+            window.FaiRe.toggleModal('rec-modal', true);
+        }
+    </script>
+</body>
+</html>
