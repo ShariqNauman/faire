@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applicant | Apply - FaiRe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/global.css">
+    <style>
+        .layout { flex: 1; display: flex; flex-direction: column; }
+
+        /* Two-column layout */
+        .split-layout { display: flex; gap: 4rem; height: 100%; align-items: stretch; margin-bottom: 2rem;}
+        .split-column { flex: 1; display: flex; flex-direction: column; gap: 1rem;}
+
+        /* Hard gate requirements */
+        .req-card { background: var(--black); padding: 1.5rem; border-left: 2px solid var(--yellow); display: flex; gap: 1rem; align-items: flex-start;}
+        .req-card p { margin: 0; color: var(--white); font-size: 0.85rem; }
+
+        /* Code block for AI rules */
+        .ai-rules-block { background: #050505; border-left: 2px solid var(--muted); padding: 2rem; font-family: 'IBM Plex Mono'; font-size: 0.85rem; color: #888; overflow-x: auto; flex: 1;}
+
+        /* Form inputs */
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem;}
+        .form-group label { color: var(--yellow); font-size: 0.75rem; text-transform: uppercase;}
+        .form-input, .form-textarea { background: var(--black); border: 1px solid var(--muted); color: var(--white); padding: 1rem; width: 100%; font-family: 'IBM Plex Mono'; outline: none;}
+        .form-textarea { height: 120px; resize: vertical;}
+
+        /* Consent box */
+        .consent-box { background: var(--black); border: 1px solid var(--muted); padding: 2rem; margin-top: 1rem;}
+        .consent-box h3 { font-size: 1.25rem; font-family: 'Syne'; margin-bottom: 1rem; color: var(--white);}
+        .consent-box p { font-size: 0.75rem; color: var(--muted); line-height: 1.5; margin-bottom: 1.5rem;}
+        .checkbox-group { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem;}
+        .checkbox-group input[type="checkbox"] { accent-color: var(--yellow); width: 18px; height: 18px; margin-top: 0.2rem;}
+        .checkbox-group label { font-size: 0.85rem; color: var(--white); cursor: pointer; flex: 1; line-height: 1.4;}
+
+        /* Read-only App ID */
+        .app-id-display { font-family: 'IBM Plex Mono'; font-size: 2rem; color: var(--yellow); font-weight: 600; padding: 1rem; background: #050505; border: 1px solid var(--muted); display: inline-block; letter-spacing: 0.1em;}
+
+        /* Upload zone */
+        .upload-zone { border: 1px dashed var(--muted); padding: 3rem; text-align: center; margin-bottom: 1.5rem; cursor: pointer; transition: all 0.3s; }
+        .upload-zone:hover { border-color: var(--yellow); background: rgba(255, 231, 13, 0.05); }
+        .upload-zone.success { border-color: #00FF7F; background: rgba(0, 255, 127, 0.05); }
+
+        /* Skills section */
+        .skills-row { display: flex; gap: 1rem; margin-bottom: 0.5rem;}
+        .skills-row .form-group { margin-bottom: 0; flex: 1;}
+        .skills-row .form-group:last-child { flex: 0.5;}
+
+        /* Extracted data preview */
+        .extracted-preview { background: var(--black); padding: 2rem; border-left: 2px solid var(--yellow); font-family: 'IBM Plex Mono'; font-size: 0.85rem; margin-top: 2rem; display: none;}
+        .extracted-preview .red-notice { color: var(--red); font-size: 0.75rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #2e2e2e;}
+        .extracted-item { color: var(--white); margin-bottom: 0.5rem;}
+
+        /* Progress line */
+        .progress-line-container { width: 100%; height: 2px; background: var(--muted); display: flex;}
+        .progress-line-segment { flex: 1; height: 100%; background: transparent; transition: background 0.3s ease;}
+        .progress-line-segment.active { background: var(--yellow); }
+
+        /* Submit overlay */
+        #submit-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--yellow); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; }
+        #submit-overlay h1 { color: var(--black); font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; transform: translateY(50px); opacity: 0;}
+        #submit-overlay p { color: var(--gray); font-family: 'IBM Plex Mono'; font-size: 1.5rem; transform: translateY(50px); opacity: 0; margin-top: 1rem;}
+    </style>
+</head>
+<body>
+
+    <nav class="nav-bar stagger-in">
+        <div class="nav-logo"><a href="../index.html">FaiRe</a></div>
+        <div class="nav-breadcrumb">APPLICANT / APPLY</div>
+        <div class="nav-role" style="border-color: var(--white); color: var(--white);">APPLICANT</div>
+    </nav>
+
+    <div class="progress-line-container stagger-in" style="margin-top:2px;">
+        <div class="progress-line-segment active" id="prog-0"></div>
+        <div class="progress-line-segment" id="prog-1"></div>
+        <div class="progress-line-segment" id="prog-2"></div>
+        <div class="progress-line-segment" id="prog-3"></div>
+    </div>
+
+    <main class="layout stagger-in">
+        <div class="step-panel-container" style="margin-top: 2rem;">
+
+            <!-- Step 1: Job Listing & AI Transparency -->
+            <div class="step-panel step-1 active" onclick="goToStep(0)">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div class="step-title-vertical">Job & Transparency</div>
+                </div>
+                <div class="step-content">
+                    <div style="display:flex; align-items:center; gap: 2rem; margin-bottom: 2rem;">
+                        <h2 style="font-size:3.5rem;">Lead Systems Engineer</h2>
+                        <div class="status-badge pending">OPEN</div>
+                    </div>
+
+                    <div class="split-layout">
+                        <!-- Left Column: Hard Gates -->
+                        <div class="split-column">
+                            <label style="color:var(--red); font-size:0.75rem; text-transform:uppercase;">THE FOLLOWING ARE NON-NEGOTIABLE CRITERIA. FAILING ANY WILL RESULT IN AUTOMATIC REJECTION.</label>
+
+                            <div class="req-card">
+                                <i data-lucide="server" style="color:var(--yellow); flex-shrink:0;"></i>
+                                <p>5+ years cloud infrastructure (AWS / GCP)</p>
+                            </div>
+                            <div class="req-card">
+                                <i data-lucide="users" style="color:var(--yellow); flex-shrink:0;"></i>
+                                <p>Team leadership of 4+ direct reports</p>
+                            </div>
+                            <div class="req-card">
+                                <i data-lucide="graduation-cap" style="color:var(--yellow); flex-shrink:0;"></i>
+                                <p>Degree in Computer Science or related field</p>
+                            </div>
+                            <div class="req-card">
+                                <i data-lucide="network" style="color:var(--yellow); flex-shrink:0;"></i>
+                                <p>Proficiency in distributed systems architecture</p>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: AI Rules -->
+                        <div class="split-column">
+                            <h3 style="font-size:1.5rem; font-family:'Syne';">How FaiRe AI Will Assess You</h3>
+
+                            <div class="ai-rules-block">
+// Feature weights for FAI-883-XGB model
+
+experience_years   → weight: 0.60
+cert_hash_match    → weight: 0.10
+tech_stack_match   → weight: 0.30
+
+// Evaluation pipeline
+if (resume.passes_hard_gates) {
+    score = mapWeights(resume.extracted);
+    return score > THRESHOLD ? ACCEPT : REJECT;
+}
+                            </div>
+
+                            <p style="font-size:0.75rem; color:var(--muted); font-family:'IBM Plex Mono';">Note: Sensitive attributes (age, gender, race, postcode) are STRIPPED before processing.</p>
+
+                            <div class="status-badge approved" style="align-self:flex-start; margin-top:0.5rem; margin-bottom:1rem;">BIAS-AUDITED MODEL: FAI-883-XGB</div>
+
+                            <button class="btn btn-yellow" style="margin-top:auto;" onclick="goToStep(1)">I Understand — Proceed to Application →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Personal Details -->
+            <div class="step-panel step-2" onclick="goToStep(1)">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-title-vertical">Personal Details</div>
+                </div>
+                <div class="step-content">
+                    <h2 style="font-size:2.5rem; margin-bottom:2rem;">Identity & Consent</h2>
+
+                    <div class="split-layout">
+                        <div class="split-column">
+                            <div class="form-group">
+                                <label>Full Legal Name</label>
+                                <input type="text" class="form-input" placeholder="e.g. Eleanor Vance" id="applicant-name">
+                            </div>
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" class="form-input" placeholder="eleanor.vance@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="tel" class="form-input" placeholder="+1 (555) 012-3456">
+                            </div>
+
+                            <div class="form-group" style="margin-top:1rem;">
+                                <label>Your Secured Application ID</label>
+                                <div class="app-id-display" id="generated-app-id">APP-...</div>
+                                <p style="font-size:0.75rem; color:var(--muted); margin-top:0.5rem;">Save this ID. You will need it to check your status later.</p>
+                            </div>
+                        </div>
+
+                        <div class="split-column">
+                            <div class="consent-box">
+                                <h3>Data Consent & AI Processing Agreement</h3>
+                                <p>To proceed, you must consent to automated processing. FaiRe guarantees your data will be anonymised, with sensitive identifiers completely stripped before evaluation. Only job-relevant extracted attributes are scored. This decision is auditable, and you retain the right to request a manual human review within 14 days of any automated rejection.</p>
+
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="consent-1" onchange="checkConsent()">
+                                    <label for="consent-1">I consent to my resume being processed by the FaiRe AI screening system.</label>
+                                </div>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="consent-2" onchange="checkConsent()">
+                                    <label for="consent-2">I understand that sensitive attributes (age, gender, race) will be stripped before evaluation.</label>
+                                </div>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="consent-3" onchange="checkConsent()">
+                                    <label for="consent-3">I acknowledge that I can request human review of any automated decision.</label>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-yellow" style="margin-top:auto;" id="btn-step2" disabled onclick="goToStep(2)">Save & Continue →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Resume Upload -->
+            <div class="step-panel step-3" onclick="goToStep(2)">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div class="step-title-vertical">Data Upload</div>
+                </div>
+                <div class="step-content">
+                    <div class="split-layout">
+                        <!-- Left: Upload & Skills -->
+                        <div class="split-column">
+                            <h2 style="font-size:2.5rem; margin-bottom:1rem;">Provide Artifacts</h2>
+
+                            <div class="upload-zone" id="resume-upload" onclick="simulateResumeUpload()">
+                                <i data-lucide="file-up" style="margin-bottom:1rem; opacity:0.5; width:48px; height:48px;"></i>
+                                <p style="font-family:'Syne'; font-size:1.25rem; font-weight:600; margin-bottom:0.5rem;">Upload Resume (PDF / DOCX)</p>
+                                <p class="file-name" style="margin-top:0.5rem; color: #00FF7F; font-weight:bold; font-family:'IBM Plex Mono';"></p>
+                            </div>
+
+                            <h3 style="font-size:1.5rem; font-family:'Syne'; margin-top:2rem; margin-bottom:1rem;">Supplement Your Resume</h3>
+
+                            <div class="form-group">
+                                <label>Describe relevant experience (Optional)</label>
+                                <textarea class="form-textarea" placeholder="Describe your most relevant experience in your own words..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Top Skills (Optional)</label>
+                                <div class="skills-row">
+                                    <div class="form-group"><input type="text" class="form-input" placeholder="Skill (e.g. AWS)"></div>
+                                    <div class="form-group"><input type="number" class="form-input" placeholder="Years"></div>
+                                </div>
+                                <div class="skills-row">
+                                    <div class="form-group"><input type="text" class="form-input" placeholder="Skill"></div>
+                                    <div class="form-group"><input type="number" class="form-input" placeholder="Years"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: AI Preview -->
+                        <div class="split-column">
+                            <h2 style="font-size:1.5rem; font-family:'Syne'; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;">
+                                <i data-lucide="eye" style="color:var(--yellow)"></i> Data Sent to AI Model (Preview)
+                            </h2>
+                            <p style="font-size:0.85rem; color:var(--muted);">FaiRe extracts your data asynchronously. This is the exact payload sent to the inference endpoint.</p>
+
+                            <div class="extracted-preview" id="extracted-view">
+                                <div class="extract-anim">Extracted: experience_years = 3</div>
+                                <div class="extract-anim">Extracted: degree = "B.Sc. Computer Science"</div>
+                                <div class="extract-anim">Extracted: leadership_reported = false</div>
+                                <div class="extract-anim">Extracted: cloud_certs = ["AWS-SAA"]</div>
+
+                                <div class="red-notice">Sensitive fields stripped: Date_Of_Birth, Gender_Identity, Ethnicity_Survey, Home_Postcode</div>
+                            </div>
+
+                            <button class="btn btn-yellow" style="margin-top:auto;" id="btn-step3" disabled onclick="goToStep(3)">Review & Application →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Review -->
+            <div class="step-panel step-4" onclick="goToStep(3)">
+                <div class="step-header">
+                    <div class="step-number">4</div>
+                    <div class="step-title-vertical">Submit</div>
+                </div>
+                <div class="step-content">
+                    <h2 style="font-size:2.5rem; margin-bottom:2rem;">Final Review</h2>
+
+                    <div style="background:var(--black); border:1px solid var(--muted); padding:3rem; margin-bottom:2rem; width:100%; max-width:800px;">
+                        <h3 style="font-family:'Syne';font-size:1.5rem; margin-bottom:2rem; padding-bottom:1rem; border-bottom:1px solid #2e2e2e;">Application Summary</h3>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:2rem; font-family:'IBM Plex Mono'; font-size:0.85rem;">
+                            <div>
+                                <p style="color:var(--muted); margin-bottom:0.25rem; text-transform:uppercase; font-size:0.75rem;">Applicant Name</p>
+                                <p style="color:var(--white); margin-bottom:1.5rem;" id="summary-name">Eleanor Vance</p>
+
+                                <p style="color:var(--muted); margin-bottom:0.25rem; text-transform:uppercase; font-size:0.75rem;">Role Applied For</p>
+                                <p style="color:var(--white); margin-bottom:1.5rem;">Lead Systems Engineer</p>
+
+                                <p style="color:var(--muted); margin-bottom:0.25rem; text-transform:uppercase; font-size:0.75rem;">Assessing Model</p>
+                                <p style="color:var(--white); margin-bottom:1.5rem;">FAI-883-XGB</p>
+                            </div>
+                            <div>
+                                <p style="color:var(--muted); margin-bottom:0.25rem; text-transform:uppercase; font-size:0.75rem;">Secured Form ID</p>
+                                <p style="color:var(--yellow); font-weight:600; font-size:1.25rem; margin-bottom:1.5rem;" id="summary-id">APP-XXXXX</p>
+
+                                <p style="color:var(--white); margin-bottom:0.5rem;"><i data-lucide="check" style="color:#00FF7F; width:16px; margin-right:0.5rem;"></i> Processing Consent Granted</p>
+                                <p style="color:var(--white);"><i data-lucide="check" style="color:#00FF7F; width:16px; margin-right:0.5rem;"></i> PII Stripping Confirmed</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="violation-card" style="border-left-color: var(--muted); max-width:800px; margin-bottom:3rem;">
+                        <i data-lucide="info" style="color:var(--white);"></i>
+                        <p style="color:var(--white); margin:0;">Your application will be evaluated within 24 hours. You will receive your Application ID above to check your result at the Applicant Portal.</p>
+                    </div>
+
+                    <div style="display:flex; gap:1rem; max-width:800px;">
+                        <button class="btn btn-outline" style="flex:1;" onclick="goToStep(0)">← Edit Application</button>
+                        <button class="btn btn-yellow" style="flex:2;" id="btn-submit" onclick="submitApp()">Submit Application</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Overlay -->
+    <div id="submit-overlay">
+        <h1 id="sub-title">✓ APPLICATION SUBMITTED</h1>
+        <p id="sub-id">Your ID: APP-XXXXX</p>
+    </div>
+
+    <!-- Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="../scripts/shared.js"></script>
+    <script>
+        let appId = "APP-";
+        let uploadDone = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.FaiRe.staggerPageIn('.stagger-in, .step-panel');
+
+            // Generate random 5 char alphanumeric ID for demo
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            for (let i = 0; i < 5; i++) {
+                appId += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('generated-app-id').innerText = appId;
+            document.getElementById('summary-id').innerText = appId;
+            document.getElementById('sub-id').innerText = `Your ID: ${appId}`;
+        });
+
+        // Ensure progression works even if clicking panel tabs, update line progress
+        function goToStep(index) {
+            window.FaiRe.activateStep('.step-panel', index);
+            updateProgressLine(index);
+
+            // Sync name from state
+            if(index === 3) {
+                const name = document.getElementById('applicant-name').value;
+                document.getElementById('summary-name').innerText = name || 'Anonymous Applicant';
+            }
+        }
+
+        function updateProgressLine(index) {
+            for(let i=0; i<=3; i++) {
+                const seg = document.getElementById(`prog-${i}`);
+                if(i <= index) seg.classList.add('active');
+                else seg.classList.remove('active');
+            }
+        }
+
+        function checkConsent() {
+            const btn = document.getElementById('btn-step2');
+            const c1 = document.getElementById('consent-1').checked;
+            const c2 = document.getElementById('consent-2').checked;
+            const c3 = document.getElementById('consent-3').checked;
+            btn.disabled = !(c1 && c2 && c3);
+        }
+
+        function simulateResumeUpload() {
+            if(uploadDone) return;
+            const nameField = document.getElementById('applicant-name').value;
+            const mockName = nameField ? nameField.toLowerCase().replace(/ /g, '_') : 'eleanor_vance';
+
+            const u = document.getElementById('resume-upload');
+            u.classList.add('success');
+            u.querySelector('.file-name').innerText = `resume_${mockName}.pdf`;
+
+            document.getElementById('extracted-view').style.display = 'block';
+
+            gsap.fromTo('.extract-anim',
+                {opacity: 0, y: 15},
+                {opacity: 1, y: 0, duration: 0.5, stagger: 0.15, ease:"power2.out"}
+            );
+
+            gsap.fromTo('.red-notice',
+                {opacity: 0},
+                {opacity: 1, duration: 1, delay: 0.8}
+            );
+
+            document.getElementById('btn-step3').disabled = false;
+            uploadDone = true;
+        }
+
+        function submitApp() {
+            const btn = document.getElementById('btn-submit');
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
+            setTimeout(() => {
+                const overlay = document.getElementById('submit-overlay');
+                overlay.style.pointerEvents = 'auto'; // ensure it captures
+                gsap.to(overlay, { opacity: 1, duration: 0.3 });
+                gsap.to('#sub-title', { opacity: 1, y: 0, duration: 0.6, ease: "back.out(1.5)", delay: 0.2 });
+                gsap.to('#sub-id', { opacity: 1, y: 0, duration: 0.6, ease: "back.out(1.5)", delay: 0.3 });
+
+                setTimeout(() => {
+                    window.location.href = 'feedback.html';
+                }, 2500);
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
