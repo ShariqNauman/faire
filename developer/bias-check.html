@@ -123,7 +123,7 @@
     </main>
 
     <div id="deploy-celebration">
-        <h1 id="dep-text">✓ SYSTEM CLEARED FOR DEPLOYMENT</h1>
+        <h1 id="dep-text">✓ MODEL SUBMITTED TO COMPLIANCE PIPELINE</h1>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -182,14 +182,15 @@
         }
 
         function authorize() {
+            sessionStorage.setItem('faiRe_model_status', 'PENDING_COMPLIANCE');
             const overlay = document.getElementById('deploy-celebration');
             overlay.style.pointerEvents = 'auto';
             gsap.to(overlay, { opacity: 1, duration: 0.3 });
             gsap.to('#dep-text', { opacity: 1, y: 0, duration: 0.6, ease: "back.out(1.5)", delay: 0.2 });
 
             setTimeout(() => {
-                window.location.href = '../index.html';
-            }, 3000);
+                window.location.href = '../business/checkpoints.html';
+            }, 2000);
         }
     </script>
 </body>
