@@ -118,23 +118,43 @@
 
                         <!-- Right Column: AI Rules -->
                         <div class="split-column">
-                            <h3 style="font-size:1.5rem; font-family:'Syne';">How FaiRe AI Will Assess You</h3>
+                            <h3 style="font-size:1.5rem; font-family:'Syne'; margin-bottom:1rem;">How FaiRe AI Will Assess You</h3>
 
-                            <div class="ai-rules-block">
-// Feature weights for FAI-883-XGB model
-
-experience_years   → weight: 0.60
-cert_hash_match    → weight: 0.10
-tech_stack_match   → weight: 0.30
-
-// Evaluation pipeline
-if (resume.passes_hard_gates) {
-    score = mapWeights(resume.extracted);
-    return score > THRESHOLD ? ACCEPT : REJECT;
-}
+                            <div class="ai-assessment-container" style="background:var(--gray); padding:1.5rem; border-left: 2px solid var(--yellow); margin-bottom:1.5rem;">
+                                <p style="font-size:0.8rem; color:var(--white); line-height:1.5; margin-bottom:1.5rem;">
+                                    If your resume meets the baseline requirements on the left, FaiRe AI calculates a fit score using these weighted criteria:
+                                </p>
+                                <div style="display:flex; gap:1.5rem; align-items:center; flex-wrap:wrap;">
+                                    <div style="flex:1; min-width:140px; display:flex; justify-content:center;">
+                                        <canvas id="assessmentPieChart" style="max-width:140px; max-height:140px;"></canvas>
+                                    </div>
+                                    <div style="flex:1.5; min-width:180px; display:flex; flex-direction:column; gap:0.75rem; font-family:'IBM Plex Mono'; font-size:0.75rem;">
+                                        <div style="display:flex; align-items:flex-start; gap:0.5rem;">
+                                            <span style="display:inline-block; width:10px; height:10px; background:#FFE70D; border-radius:50%; margin-top:3px; flex-shrink:0;"></span>
+                                            <div>
+                                                <strong style="color:var(--white);">60% — Work Experience</strong>
+                                                <div style="color:var(--muted); font-size:0.7rem; margin-top:0.15rem;">Years of software engineering history.</div>
+                                            </div>
+                                        </div>
+                                        <div style="display:flex; align-items:flex-start; gap:0.5rem;">
+                                            <span style="display:inline-block; width:10px; height:10px; background:#F5F5F5; border-radius:50%; margin-top:3px; flex-shrink:0;"></span>
+                                            <div>
+                                                <strong style="color:var(--white);">30% — Technical Skills</strong>
+                                                <div style="color:var(--muted); font-size:0.7rem; margin-top:0.15rem;">Alignment with software engineering stack.</div>
+                                            </div>
+                                        </div>
+                                        <div style="display:flex; align-items:flex-start; gap:0.5rem;">
+                                            <span style="display:inline-block; width:10px; height:10px; background:#FD3333; border-radius:50%; margin-top:3px; flex-shrink:0;"></span>
+                                            <div>
+                                                <strong style="color:var(--white);">10% — Certifications</strong>
+                                                <div style="color:var(--muted); font-size:0.7rem; margin-top:0.15rem;">Industry certifications (e.g. AWS, GCP).</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <p style="font-size:0.75rem; color:var(--muted); font-family:'IBM Plex Mono';">Note: Sensitive attributes (age, gender, race, postcode) are STRIPPED before processing.</p>
+                            <p style="font-size:0.75rem; color:var(--muted); font-family:'IBM Plex Mono'; margin-bottom:1.5rem;">Note: Sensitive attributes (age, gender, race, postcode) are STRIPPED before processing.</p>
 
                             <div class="status-badge approved" style="align-self:flex-start; margin-top:0.5rem; margin-bottom:1rem;">BIAS-AUDITED MODEL: FAI-883-XGB</div>
 
@@ -243,16 +263,33 @@ if (resume.passes_hard_gates) {
                             <h2 style="font-size:1.5rem; font-family:'Syne'; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;">
                                 <i data-lucide="eye" style="color:var(--yellow)"></i> Data Sent to AI Model (Preview)
                             </h2>
-                            <p style="font-size:0.85rem; color:var(--muted);">FaiRe extracts your data asynchronously. This is the exact payload sent to the inference endpoint.</p>
+                            <p style="font-size:0.85rem; color:var(--muted);">FaiRe automatically processes your resume to extract the primary qualifications. Here is the verified dataset that will be evaluated:</p>
 
-                            <div class="extracted-preview" id="extracted-view">
-                                <div class="extract-anim">Extracted: experience_years = 3</div>
-                                <div class="extract-anim">Extracted: degree = "B.Sc. Computer Science"</div>
-                                <div class="extract-anim">Extracted: leadership_reported = false</div>
-                                <div class="extract-anim">Extracted: cloud_certs = ["AWS-SAA"]</div>
+                             <div class="extracted-preview" id="extracted-view" style="background: var(--gray); border-left: 2px solid var(--yellow); padding: 1.5rem; display: none;">
+                                 <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                     <div class="extract-anim" style="display: flex; justify-content: space-between; font-size: 0.85rem; border-bottom: 1px solid rgba(250, 245, 230, 0.05); padding-bottom: 0.5rem;">
+                                         <span style="color: var(--muted);">Work Experience</span>
+                                         <strong style="color: var(--white); font-family: 'IBM Plex Mono'; font-weight: 500;">3 Years</strong>
+                                     </div>
+                                     <div class="extract-anim" style="display: flex; justify-content: space-between; font-size: 0.85rem; border-bottom: 1px solid rgba(250, 245, 230, 0.05); padding-bottom: 0.5rem;">
+                                         <span style="color: var(--muted);">Highest Degree</span>
+                                         <strong style="color: var(--white); font-family: 'IBM Plex Mono'; font-weight: 500;">B.Sc. Computer Science</strong>
+                                     </div>
+                                     <div class="extract-anim" style="display: flex; justify-content: space-between; font-size: 0.85rem; border-bottom: 1px solid rgba(250, 245, 230, 0.05); padding-bottom: 0.5rem;">
+                                         <span style="color: var(--muted);">Leadership Experience</span>
+                                         <strong style="color: var(--white); font-family: 'IBM Plex Mono'; font-weight: 500;">None Reported</strong>
+                                     </div>
+                                     <div class="extract-anim" style="display: flex; justify-content: space-between; font-size: 0.85rem; border-bottom: 1px solid rgba(250, 245, 230, 0.05); padding-bottom: 0.5rem;">
+                                         <span style="color: var(--muted);">Cloud Certifications</span>
+                                         <strong style="color: var(--white); font-family: 'IBM Plex Mono'; font-weight: 500;">AWS-SAA</strong>
+                                     </div>
+                                 </div>
 
-                                <div class="red-notice">Sensitive fields stripped: Date_Of_Birth, Gender_Identity, Ethnicity_Survey, Home_Postcode</div>
-                            </div>
+                                 <div class="red-notice" style="color: var(--red); font-size: 0.75rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(250, 245, 230, 0.1); line-height: 1.4; display: flex; align-items: flex-start; gap: 0.5rem;">
+                                     <i data-lucide="shield-alert" style="width: 16px; height: 16px; flex-shrink: 0; color: var(--red);"></i>
+                                     <span><strong>Privacy Protected:</strong> Sensitive fields (Birth Date, Gender, Ethnicity, Postcode) have been automatically stripped to ensure a bias-free assessment.</span>
+                                 </div>
+                             </div>
 
                             <button class="btn btn-yellow" style="margin-top:auto;" id="btn-step3" disabled onclick="goToStep(3)">Review & Application →</button>
                         </div>
@@ -317,6 +354,7 @@ if (resume.passes_hard_gates) {
     <!-- Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     <script src="../scripts/shared.js"></script>
     <script>
         let appId = "APP-";
@@ -333,6 +371,34 @@ if (resume.passes_hard_gates) {
             document.getElementById('generated-app-id').innerText = appId;
             document.getElementById('summary-id').innerText = appId;
             document.getElementById('sub-id').innerText = `Your ID: ${appId}`;
+
+            // Initialize Assessment Pie Chart
+            const ctx = document.getElementById('assessmentPieChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Work Experience', 'Technical Skills', 'Certifications'],
+                    datasets: [{
+                        data: [60, 30, 10],
+                        backgroundColor: ['#FFE70D', '#F5F5F5', '#FD3333'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         });
 
         // Ensure progression works even if clicking panel tabs, update line progress
