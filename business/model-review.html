@@ -400,13 +400,25 @@
                                     </div>
                                     <div class="status-badge pending" id="bdg-1">PENDING</div>
                                 </div>
-                                <p style="color:var(--muted); font-size:0.8rem; margin-bottom:0.75rem;">Input proposed system scope for legal NLP analysis.</p>
-                                <textarea id="scope-tx" style="height:80px; margin-bottom:0.75rem;" placeholder="Paste JSON feature list or requirements..."></textarea>
-                                <button class="btn btn-yellow" style="width:100%; font-size:0.85rem;" onclick="runStage1()">Run Legal Scan</button>
+                                <p style="color:var(--muted); font-size:0.8rem; margin-bottom:0.75rem;">Download and audit the model specification documentation.</p>
+                                <button class="btn btn-outline" style="width:100%; font-size:0.8rem; display:flex; align-items:center; justify-content:center; gap:0.5rem; margin-bottom: 1rem;" onclick="downloadDocumentation()">
+                                    <i data-lucide="download" style="width:14px; height:14px;"></i> Download Model Spec
+                                </button>
+                                
+                                <div class="checkbox-group" style="display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: 1.25rem;">
+                                    <input type="checkbox" id="legal-doc-approved" onchange="checkStage1()" style="width: auto; margin-top: 0.15rem; accent-color: var(--yellow); cursor: pointer;">
+                                    <label for="legal-doc-approved" style="font-size: 0.72rem; color: var(--white); cursor: pointer; line-height: 1.4;">I have audited the downloaded documentation and declare it legally compliant.</label>
+                                </div>
+
+                                <div style="display:flex; gap:0.75rem; margin-bottom: 1rem;">
+                                    <button class="btn btn-red" style="flex:1; font-size:0.8rem; padding: 0.6rem 1rem;" onclick="rejectActiveModel()">Reject</button>
+                                    <button class="btn btn-yellow" style="flex:2; font-size:0.8rem; padding: 0.6rem 1rem;" id="btn-stg1-approve" disabled onclick="runStage1()">Approve Stage 1</button>
+                                </div>
+
                                 <div id="stg1-res" style="margin-top:1.25rem; display:none;">
                                     <div class="violation-card" style="border-color:#00FF7F">
                                         <i data-lucide="check" style="color:#00FF7F"></i>
-                                        <div><strong style="color:var(--white);">Cleared:</strong> No direct violations of ADEA, Title VII, or ADA detected.</div>
+                                        <div><strong style="color:var(--white);">Cleared:</strong> Documentation approved for compliance review.</div>
                                     </div>
                                 </div>
                                 <div class="arrow-connector">→</div>
@@ -695,7 +707,10 @@
             // Stage 1
             document.getElementById('bdg-1').className = 'status-badge pending'; document.getElementById('bdg-1').textContent = 'PENDING';
             document.getElementById('stg1-res').style.display = 'none';
-            document.getElementById('scope-tx').value = '';
+            const chkStage1 = document.getElementById('legal-doc-approved');
+            if (chkStage1) chkStage1.checked = false;
+            const btnStage1 = document.getElementById('btn-stg1-approve');
+            if (btnStage1) btnStage1.disabled = true;
             // Stage 2
             document.getElementById('stg-2').className = 'stage-card locked';
             document.getElementById('bdg-2').className = 'status-badge pending'; document.getElementById('bdg-2').textContent = 'WAITING';
@@ -790,8 +805,40 @@
         }
 
         // ── Stage 1 ───────────────────────────────────────────────────────────
+        function checkStage1() {
+            const approved = document.getElementById('legal-doc-approved').checked;
+            document.getElementById('btn-stg1-approve').disabled = !approved;
+        }
+
+        function downloadDocumentation() {
+            if (!activeModel) return;
+            const modelData = {
+                "Model ID": activeModel.modelId,
+                "Developer ID": activeModel.developerId,
+                "Timestamp": activeModel.timestamp,
+                "Plain Language Description": activeModel.plainDescription,
+                "Training Summary": activeModel.trainingSummary,
+                "Sensitive Parameter Justifications": {
+                    "Postcode_Radius_Match": activeModel.justifications?.postcode || "N/A",
+                    "Education_Tier_Filter": activeModel.justifications?.education || "N/A"
+                },
+                "Status": activeModel.status
+            };
+            
+            const jsonStr = JSON.stringify(modelData, null, 4);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${activeModel.modelId}_compliance_documentation.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
         function runStage1() {
-            if (!document.getElementById('scope-tx').value) return;
+            if (!document.getElementById('legal-doc-approved').checked) return;
             gsap.to('#stg1-res', { display: 'block', opacity: 1, duration: 0.5 });
             const bdg = document.getElementById('bdg-1');
             bdg.className = 'status-badge approved'; bdg.innerText = 'APPROVED';
