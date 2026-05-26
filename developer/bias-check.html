@@ -134,7 +134,15 @@
                     <div class="step-title-vertical">Pipeline Validation</div>
                 </div>
                 <div class="step-content">
-                    <h2 style="font-size:2rem; margin-bottom:1rem;">Full System Validation</h2>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1rem;">
+                        <h2 style="font-size:2rem; margin: 0;">Full System Validation</h2>
+                        <select id="biasParameterSelect" style="background: var(--black); color: var(--white); border: 1px solid var(--muted); border-radius: 4px; padding: 0.5rem; font-family: 'IBM Plex Mono'; outline: none; cursor: pointer;" onchange="updateChartParameter()">
+                            <option value="age">Parameter: Age</option>
+                            <option value="gender">Parameter: Gender Proxy</option>
+                            <option value="region">Parameter: Region / Zip Code</option>
+                            <option value="tenure">Parameter: Tenure</option>
+                        </select>
+                    </div>
                     
                     <div class="chart-wrapper" style="width: 100%; height: 350px; margin-bottom: 2rem; background: var(--black); border: 1px solid var(--muted); border-radius: 4px; padding: 1rem; position: relative;">
                         <canvas id="biasChart"></canvas>
@@ -241,21 +249,72 @@
 
         let chartInitialized = false;
         let biasChartInstance = null;
+        let isPipelineRun = false;
+        let currentParam = 'age';
         
+        const mockDatasets = {
+            age: {
+                xLabel: 'Age (Years)', xMin: 20, xMax: 60,
+                data: [
+                    {x: 22, y: 45}, {x: 25, y: 52}, {x: 28, y: 61}, {x: 31, y: 55}, {x: 35, y: 70},
+                    {x: 39, y: 68}, {x: 42, y: 80}, {x: 46, y: 75}, {x: 50, y: 85}, {x: 53, y: 88},
+                    {x: 23, y: 50}, {x: 27, y: 58}, {x: 30, y: 60}, {x: 34, y: 65}, {x: 38, y: 72},
+                    {x: 41, y: 78}, {x: 45, y: 82}, {x: 49, y: 81}, {x: 52, y: 90}, {x: 55, y: 92},
+                    {x: 24, y: 48}, {x: 26, y: 55}, {x: 29, y: 59}, {x: 32, y: 63}, {x: 36, y: 67},
+                    {x: 40, y: 74}, {x: 44, y: 79}, {x: 48, y: 84}, {x: 51, y: 87}, {x: 54, y: 95}
+                ]
+            },
+            gender: {
+                xLabel: 'Gender Proxy Score', xMin: 0, xMax: 100,
+                data: Array.from({length: 30}, () => { let x = Math.floor(Math.random() * 100); return {x, y: 40 + (x * 0.4) + (Math.random() * 20 - 10)}; })
+            },
+            region: {
+                xLabel: 'Socioeconomic Region Index', xMin: 0, xMax: 100,
+                data: Array.from({length: 30}, () => { let x = Math.floor(Math.random() * 100); return {x, y: 35 + (x * 0.5) + (Math.random() * 20 - 10)}; })
+            },
+            tenure: {
+                xLabel: 'Previous Tenure (Years)', xMin: 0, xMax: 15,
+                data: Array.from({length: 30}, () => { let x = Math.floor(Math.random() * 15); return {x, y: 50 + (x * 2.5) + (Math.random() * 20 - 10)}; })
+            }
+        };
+
+        function updateChartParameter() {
+            if (!biasChartInstance || isPipelineRun) return;
+            currentParam = document.getElementById('biasParameterSelect').value;
+            const paramData = mockDatasets[currentParam];
+            
+            let scatterData = paramData.data;
+            let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+            scatterData.forEach(p => {
+                sumX += p.x; sumY += p.y;
+                sumXY += p.x * p.y; sumX2 += p.x * p.x;
+            });
+            const n = scatterData.length;
+            const m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            const b = (sumY - m * sumX) / n;
+            const lineData = [
+                {x: paramData.xMin, y: m * paramData.xMin + b},
+                {x: paramData.xMax, y: m * paramData.xMax + b}
+            ];
+
+            biasChartInstance.data.datasets[0].data = scatterData;
+            biasChartInstance.data.datasets[0].label = `Candidate Score by ${paramData.xLabel.split(' ')[0]}`;
+            biasChartInstance.data.datasets[1].data = lineData;
+            biasChartInstance.options.scales.x.title.text = paramData.xLabel;
+            biasChartInstance.options.scales.x.min = paramData.xMin;
+            biasChartInstance.options.scales.x.max = paramData.xMax;
+            
+            biasChartInstance.update();
+        }
+
         function initChart() {
             if (chartInitialized) return;
             const canvas = document.getElementById('biasChart');
             if (!canvas) return;
             chartInitialized = true;
             
-            const scatterData = [
-                {x: 22, y: 45}, {x: 25, y: 52}, {x: 28, y: 61}, {x: 31, y: 55}, {x: 35, y: 70},
-                {x: 39, y: 68}, {x: 42, y: 80}, {x: 46, y: 75}, {x: 50, y: 85}, {x: 53, y: 88},
-                {x: 23, y: 50}, {x: 27, y: 58}, {x: 30, y: 60}, {x: 34, y: 65}, {x: 38, y: 72},
-                {x: 41, y: 78}, {x: 45, y: 82}, {x: 49, y: 81}, {x: 52, y: 90}, {x: 55, y: 92},
-                {x: 24, y: 48}, {x: 26, y: 55}, {x: 29, y: 59}, {x: 32, y: 63}, {x: 36, y: 67},
-                {x: 40, y: 74}, {x: 44, y: 79}, {x: 48, y: 84}, {x: 51, y: 87}, {x: 54, y: 95}
-            ];
+            const paramData = mockDatasets['age'];
+            let scatterData = paramData.data;
 
             let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
             scatterData.forEach(p => {
@@ -266,8 +325,8 @@
             const m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
             const b = (sumY - m * sumX) / n;
             const lineData = [
-                {x: 20, y: m * 20 + b},
-                {x: 60, y: m * 60 + b}
+                {x: paramData.xMin, y: m * paramData.xMin + b},
+                {x: paramData.xMax, y: m * paramData.xMax + b}
             ];
 
             const ctx = canvas.getContext('2d');
@@ -307,9 +366,9 @@
                     },
                     scales: {
                         x: {
-                            title: { display: true, text: 'Age (Years)', color: '#888888', font: { family: 'IBM Plex Mono' } },
+                            title: { display: true, text: paramData.xLabel, color: '#888888', font: { family: 'IBM Plex Mono' } },
                             grid: { color: '#1A1A1A' }, ticks: { color: '#888888', font: { family: 'IBM Plex Mono' } },
-                            min: 20, max: 60
+                            min: paramData.xMin, max: paramData.xMax
                         },
                         y: {
                             title: { display: true, text: 'Automated Score', color: '#888888', font: { family: 'IBM Plex Mono' } },
@@ -323,8 +382,16 @@
 
         function runPipeline() {
             document.getElementById('btn-pipeline').style.display = 'none';
+            const selectEl = document.getElementById('biasParameterSelect');
+            if(selectEl) {
+                selectEl.disabled = true;
+                selectEl.style.opacity = '0.5';
+                selectEl.style.cursor = 'not-allowed';
+            }
+            isPipelineRun = true;
 
             if (biasChartInstance) {
+                const paramData = mockDatasets[currentParam];
                 const newData = biasChartInstance.data.datasets[0].data.map(p => ({
                     x: p.x,
                     y: 70 + (Math.random() * 20 - 10) 
@@ -340,8 +407,8 @@
                 const m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
                 const b = (sumY - m * sumX) / n;
                 biasChartInstance.data.datasets[1].data = [
-                    {x: 20, y: m * 20 + b},
-                    {x: 60, y: m * 60 + b}
+                    {x: paramData.xMin, y: m * paramData.xMin + b},
+                    {x: paramData.xMax, y: m * paramData.xMax + b}
                 ];
                 
                 biasChartInstance.data.datasets[1].borderColor = '#00FF7F';
