@@ -23,7 +23,12 @@ body {
   overflow-x: hidden;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Syne', sans-serif;
   letter-spacing: -0.05em;
   text-transform: uppercase;
@@ -101,7 +106,8 @@ textarea:focus {
   width: 320px;
   height: 400px;
   background-color: var(--gray);
-  border-left: 2px solid transparent;
+  border-top: 4px solid var(--yellow);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(251, 189, 13, 0.15);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -109,28 +115,32 @@ textarea:focus {
   padding: 3rem 2rem;
   text-decoration: none;
   color: var(--white);
-  transition: background-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), border-left-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: background-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
   position: relative;
   overflow: hidden;
 }
 
 .role-card:hover {
-  background-color: #121212;
-  border-left-color: var(--yellow);
+  background-color: var(--yellow);
+  color: var(--black);
   transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 231, 13, 0.05);
+  box-shadow: 0 20px 40px rgba(251, 189, 13, 0.3);
+}
+
+.role-card:hover h2, .role-card:hover p {
+  color: var(--black);
 }
 
 .role-card i {
   position: absolute;
   top: 2rem;
   right: 2rem;
-  color: var(--muted);
+  color: var(--yellow);
   transition: color 0.3s ease;
 }
 
 .role-card:hover i {
-  color: var(--yellow);
+  color: var(--white) !important;
 }
 
 /* Card Graphic Viewport HUD Scanner */
@@ -148,8 +158,8 @@ textarea:focus {
   position: relative;
   overflow: hidden;
   transition: border-color 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-              background-color 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-              box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    background-color 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+    box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1);
   flex-shrink: 0;
 
   background-image:
@@ -165,7 +175,7 @@ textarea:focus {
   border-color: rgba(255, 231, 13, 0.25);
   background-color: #070707;
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8),
-              0 0 15px rgba(255, 231, 13, 0.02);
+    0 0 15px rgba(255, 231, 13, 0.02);
   animation: laser-sweep 3s linear infinite;
 }
 
@@ -184,7 +194,7 @@ textarea:focus {
   pointer-events: none;
   z-index: 1;
   transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1),
-              transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .role-card:hover .card-graphic::before {
@@ -211,7 +221,7 @@ textarea:focus {
   pointer-events: none;
   z-index: 1;
   transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-              background-image 0s;
+    background-image 0s;
 }
 
 .role-card:hover .card-graphic::after {
@@ -231,12 +241,13 @@ textarea:focus {
 .card-graphic svg {
   position: relative !important;
   z-index: 2;
-  color: var(--muted);
+  color: var(--yellow);
   width: 96px !important;
   height: 96px !important;
   transition: color 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-              transform 0.5s cubic-bezier(0.25, 1, 0.5, 1),
-              filter 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    transform 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+    filter 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  filter: drop-shadow(0 0 10px rgba(251, 189, 13, 0.2)) drop-shadow(0 0 2px rgba(251, 189, 13, 0.3));
 }
 
 .card-graphic svg * {
@@ -245,18 +256,20 @@ textarea:focus {
 
 .role-card:hover .card-graphic i,
 .role-card:hover .card-graphic svg {
-  color: var(--yellow);
+  color: var(--white);
   transform: scale(1.05);
-  filter: drop-shadow(0 0 10px rgba(255, 231, 13, 0.25)) drop-shadow(0 0 2px rgba(255, 231, 13, 0.4));
+  filter: none;
 }
 
 @keyframes laser-sweep {
   0% {
     background-position: center -24px, center, center;
   }
+
   50% {
     background-position: center 184px, center, center;
   }
+
   100% {
     background-position: center -24px, center, center;
   }
@@ -295,9 +308,21 @@ textarea:focus {
   border-left: 2px solid;
   background-color: var(--gray);
 }
-.status-badge.approved { border-left-color: #00FF7F; color: #00FF7F; }
-.status-badge.failed { border-left-color: var(--red); color: var(--red); }
-.status-badge.pending { border-left-color: var(--yellow); color: var(--yellow); }
+
+.status-badge.approved {
+  border-left-color: #00FF7F;
+  color: #00FF7F;
+}
+
+.status-badge.failed {
+  border-left-color: var(--red);
+  color: var(--red);
+}
+
+.status-badge.pending {
+  border-left-color: var(--yellow);
+  color: var(--yellow);
+}
 
 /* Violation Card */
 .violation-card {
