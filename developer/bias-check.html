@@ -129,12 +129,17 @@
 
             <!-- Step 2 -->
             <div class="step-panel step-2">
-                <div class="step-header" onclick="window.FaiRe.activateStep('.step-panel', 1)">
+                <div class="step-header" onclick="window.FaiRe.activateStep('.step-panel', 1); setTimeout(initChart, 300);">
                     <div class="step-number">2</div>
                     <div class="step-title-vertical">Pipeline Validation</div>
                 </div>
                 <div class="step-content">
-                    <h2 style="font-size:2rem; margin-bottom:2rem;">Full System Validation</h2>
+                    <h2 style="font-size:2rem; margin-bottom:1rem;">Full System Validation</h2>
+                    
+                    <div class="chart-wrapper" style="width: 100%; height: 350px; margin-bottom: 2rem; background: var(--black); border: 1px solid var(--muted); border-radius: 4px; padding: 1rem; position: relative;">
+                        <canvas id="biasChart"></canvas>
+                    </div>
+
                     <button class="btn btn-yellow" onclick="runPipeline()" id="btn-pipeline">Run Final Pass</button>
 
                     <div class="progress-container">
@@ -203,6 +208,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../scripts/shared.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => window.FaiRe.staggerPageIn('.stagger-in, .step-panel'));
@@ -226,15 +232,122 @@
             btn.className = 'btn btn-yellow';
             btn.style.marginTop = '2rem';
             btn.innerText = 'Proceed to Validation';
-            btn.onclick = () => nextStep(1);
+            btn.onclick = () => { nextStep(1); setTimeout(initChart, 300); };
 
             list.appendChild(card);
             list.appendChild(btn);
             lucide.createIcons();
         }
 
+        let chartInitialized = false;
+        let biasChartInstance = null;
+        
+        function initChart() {
+            if (chartInitialized) return;
+            const canvas = document.getElementById('biasChart');
+            if (!canvas) return;
+            chartInitialized = true;
+            
+            const scatterData = [
+                {x: 22, y: 45}, {x: 25, y: 52}, {x: 28, y: 61}, {x: 31, y: 55}, {x: 35, y: 70},
+                {x: 39, y: 68}, {x: 42, y: 80}, {x: 46, y: 75}, {x: 50, y: 85}, {x: 53, y: 88},
+                {x: 23, y: 50}, {x: 27, y: 58}, {x: 30, y: 60}, {x: 34, y: 65}, {x: 38, y: 72},
+                {x: 41, y: 78}, {x: 45, y: 82}, {x: 49, y: 81}, {x: 52, y: 90}, {x: 55, y: 92},
+                {x: 24, y: 48}, {x: 26, y: 55}, {x: 29, y: 59}, {x: 32, y: 63}, {x: 36, y: 67},
+                {x: 40, y: 74}, {x: 44, y: 79}, {x: 48, y: 84}, {x: 51, y: 87}, {x: 54, y: 95}
+            ];
+
+            let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+            scatterData.forEach(p => {
+                sumX += p.x; sumY += p.y;
+                sumXY += p.x * p.y; sumX2 += p.x * p.x;
+            });
+            const n = scatterData.length;
+            const m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            const b = (sumY - m * sumX) / n;
+            const lineData = [
+                {x: 20, y: m * 20 + b},
+                {x: 60, y: m * 60 + b}
+            ];
+
+            const ctx = canvas.getContext('2d');
+            biasChartInstance = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Candidate Score by Age',
+                        data: scatterData,
+                        backgroundColor: '#FFE70D',
+                        borderColor: '#0A0A0A',
+                        borderWidth: 1,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }, {
+                        type: 'line',
+                        label: 'Bias Trend',
+                        data: lineData,
+                        borderColor: '#FD3333',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 2000, easing: 'easeOutQuart' },
+                    plugins: {
+                        legend: { labels: { color: '#F5F5F5', font: { family: 'IBM Plex Mono' } } },
+                        tooltip: {
+                            backgroundColor: '#1A1A1A', titleColor: '#FFE70D', bodyColor: '#F5F5F5',
+                            titleFont: { family: 'IBM Plex Mono' }, bodyFont: { family: 'IBM Plex Mono' },
+                            borderColor: '#888888', borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Age (Years)', color: '#888888', font: { family: 'IBM Plex Mono' } },
+                            grid: { color: '#1A1A1A' }, ticks: { color: '#888888', font: { family: 'IBM Plex Mono' } },
+                            min: 20, max: 60
+                        },
+                        y: {
+                            title: { display: true, text: 'Automated Score', color: '#888888', font: { family: 'IBM Plex Mono' } },
+                            grid: { color: '#1A1A1A' }, ticks: { color: '#888888', font: { family: 'IBM Plex Mono' } },
+                            min: 0, max: 100
+                        }
+                    }
+                }
+            });
+        }
+
         function runPipeline() {
             document.getElementById('btn-pipeline').style.display = 'none';
+
+            if (biasChartInstance) {
+                const newData = biasChartInstance.data.datasets[0].data.map(p => ({
+                    x: p.x,
+                    y: 70 + (Math.random() * 20 - 10) 
+                }));
+                biasChartInstance.data.datasets[0].data = newData;
+                
+                let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+                newData.forEach(p => {
+                    sumX += p.x; sumY += p.y;
+                    sumXY += p.x * p.y; sumX2 += p.x * p.x;
+                });
+                const n = newData.length;
+                const m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+                const b = (sumY - m * sumX) / n;
+                biasChartInstance.data.datasets[1].data = [
+                    {x: 20, y: m * 20 + b},
+                    {x: 60, y: m * 60 + b}
+                ];
+                
+                biasChartInstance.data.datasets[1].borderColor = '#00FF7F';
+                biasChartInstance.data.datasets[1].label = 'Fairness Trend (Neutral)';
+                biasChartInstance.update();
+            }
 
             window.FaiRe.animateProgress('#bar-fai', 96, 2, () => {
                 document.getElementById('sc-fai').innerText = "96/100 (PASS)";
